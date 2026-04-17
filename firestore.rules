@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── 사용자 프로필
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── 청첩장
+    //  소유자: 읽기/쓰기 허용 (단, status 는 클라이언트가 paid/published 로 올릴 수 없음)
+    //  비로그인: published(또는 paid) 만 read 허용
+    match /invitations/{invitationId} {
+      allow read: if (resource.data.status in ['paid', 'published'])
+                  || (request.auth != null && request.auth.uid == resource.data.ownerId);
+
+      allow create: if request.auth != null
+                    && request.resource.data.ownerId == request.auth.uid
+                    && request.resource.data.status == 'draft';
+
+      // 소유자 update — status 변경 제한
+      allow update: if request.auth != null
+                    && resource.data.ownerId == request.auth.uid
+                    && (
+                      // status 미변경 OR draft 내부 토글만 허용
+                      request.resource.data.status == resource.data.status
+                      || request.resource.data.status in ['draft', 'awaiting_payment']
+                    );
+
+      allow delete: if request.auth != null
+                    && resource.data.ownerId == request.auth.uid
+                    && resource.data.status == 'draft';
+    }
+
+    // ── 주문 — 본인만 read, write 는 서버(Admin)만
+    match /orders/{orderId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      allow write: if false;
+    }
+
+    // ── 템플릿 — 누구나 read, write 는 어드민(Admin SDK)만
+    match /templates/{templateId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

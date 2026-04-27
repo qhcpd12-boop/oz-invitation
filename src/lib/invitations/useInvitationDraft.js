@@ -82,9 +82,12 @@ export function useInvitationDraft() {
     }
   }, [invitation])
 
+  /** @param {Record<string, unknown>} delta @param {{ persist?: boolean }} [opts] persist=false 이면 UI만 갱신(예: 모의 결제 완료) */
   const patch = useCallback(
-    (delta) => {
+    (delta, opts = {}) => {
+      const persist = opts.persist !== false
       setInvitation((prev) => (prev ? { ...prev, ...delta } : prev))
+      if (!persist) return
       pendingPatch.current = { ...pendingPatch.current, ...delta }
       if (debounceTimer.current) clearTimeout(debounceTimer.current)
       debounceTimer.current = setTimeout(flush, 500)

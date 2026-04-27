@@ -1,9 +1,18 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { Alert, Box, Card, CardContent, CircularProgress, Stack, Typography } from '@mui/material'
-import { palette, fontFamily, radii, shadows } from '../theme/index.js'
-import { isFirebaseConfigured } from '../lib/firebase.js'
-import { findPublishedBySlug } from '../lib/invitations/invitationsService.js'
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import {
+  Alert,
+  Box,
+  Card,
+  CardContent,
+  CircularProgress,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { palette, fontFamily, radii, shadows } from "../theme/index.js";
+import { isFirebaseConfigured } from "../lib/firebase.js";
+import { findPublishedBySlug } from "../lib/invitations/invitationsService.js";
+import { formatKoreanDate } from "../lib/invitations/formatWeddingDate.js";
 
 /**
  * 공개 청첩장 (셸 미적용 · 모바일 퍼스트).
@@ -11,102 +20,147 @@ import { findPublishedBySlug } from '../lib/invitations/invitationsService.js'
  */
 const DEMO = {
   wedding: {
-    groom: '김민준',
-    bride: '이서연',
-    date: '2026-05-24',
-    time: '14:00',
-    venue: '더 그랜드 볼룸',
-    address: '서울시 강남구 테헤란로 123',
+    groom: "김민준",
+    bride: "이서연",
+    date: "2026-05-24",
+    time: "14:00",
+    venue: "더 그랜드 볼룸",
+    address: "서울시 강남구 테헤란로 123",
     greeting:
-      '두 사람이 사랑으로 만나 한 가정을 이루게 되었습니다.\n부디 오셔서 자리를 빛내 주시기 바랍니다.',
+      "두 사람이 사랑으로 만나 한 가정을 이루게 되었습니다.\n부디 오셔서 자리를 빛내 주시기 바랍니다.",
   },
-}
+};
 
 export default function PublicInvitation() {
-  const { slug } = useParams()
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [notFound, setNotFound] = useState(false)
+  const { slug } = useParams();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    let active = true
-    ;(async () => {
+    let active = true;
+    (async () => {
       if (!isFirebaseConfigured) {
-        setData(DEMO)
-        setLoading(false)
-        return
+        setData(DEMO);
+        setLoading(false);
+        return;
       }
       try {
-        const inv = await findPublishedBySlug(slug)
-        if (!active) return
-        if (!inv) setNotFound(true)
-        else setData(inv)
+        const inv = await findPublishedBySlug(slug);
+        if (!active) return;
+        if (!inv) setNotFound(true);
+        else setData(inv);
       } catch (e) {
-        console.error(e)
-        setNotFound(true)
+        console.error(e);
+        setNotFound(true);
       } finally {
-        if (active) setLoading(false)
+        if (active) setLoading(false);
       }
-    })()
+    })();
     return () => {
-      active = false
-    }
-  }, [slug])
+      active = false;
+    };
+  }, [slug]);
 
   if (loading) {
     return (
-      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#1A1A1A' }}>
-        <CircularProgress sx={{ color: '#fff' }} />
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "grid",
+          placeItems: "center",
+          background: "#1A1A1A",
+        }}
+      >
+        <CircularProgress sx={{ color: "#fff" }} />
       </Box>
-    )
+    );
   }
 
   if (notFound || !data) {
     return (
-      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#1A1A1A', color: '#fff' }}>
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "grid",
+          placeItems: "center",
+          background: "#1A1A1A",
+          color: "#fff",
+        }}
+      >
         <Stack spacing={2} alignItems="center">
           <Typography variant="h4">청첩장을 찾을 수 없습니다</Typography>
-          <Alert severity="warning">발행 전이거나 잘못된 주소일 수 있어요.</Alert>
+          <Alert severity="warning">
+            발행 전이거나 잘못된 주소일 수 있어요.
+          </Alert>
         </Stack>
       </Box>
-    )
+    );
   }
 
-  const w = data.wedding || {}
-  const dateStr = formatKoreanDate(w.date, w.time)
+  const w = data.wedding || {};
+  const dateStr = formatKoreanDate(w.date, w.time);
 
   return (
-    <Box sx={{ background: palette.bgDark, minHeight: '100vh', py: 4 }}>
+    <Box sx={{ background: palette.bgDark, minHeight: "100vh", py: 4 }}>
       <Box
         sx={{
           maxWidth: 420,
-          mx: 'auto',
+          mx: "auto",
           px: 2,
         }}
       >
-        <Card sx={{ borderRadius: `${radii.lg}px`, boxShadow: shadows.elevated, overflow: 'hidden' }}>
+        <Card
+          sx={{
+            borderRadius: `${radii.lg}px`,
+            boxShadow: shadows.elevated,
+            overflow: "hidden",
+          }}
+        >
           <Box
             sx={{
               background: `linear-gradient(180deg, ${palette.pinkSoft} 0%, #fff 70%)`,
               py: 7,
-              textAlign: 'center',
+              textAlign: "center",
             }}
           >
             <Typography
               variant="overline"
-              sx={{ letterSpacing: '0.4em', color: palette.primary, fontWeight: 700 }}
+              sx={{
+                letterSpacing: "0.4em",
+                color: palette.primary,
+                fontWeight: 700,
+              }}
             >
               WEDDING INVITATION
             </Typography>
             <Typography
-              sx={{ fontFamily: fontFamily.serif, fontSize: 36, fontWeight: 700, mt: 2 }}
+              sx={{
+                fontFamily: fontFamily.serif,
+                fontSize: 36,
+                fontWeight: 700,
+                mt: 2,
+              }}
             >
               {w.groom}
             </Typography>
-            <Typography sx={{ color: palette.primary, fontFamily: fontFamily.serif, fontSize: 24, my: 1 }}>
+            <Typography
+              sx={{
+                color: palette.primary,
+                fontFamily: fontFamily.serif,
+                fontSize: 24,
+                my: 1,
+              }}
+            >
               &
             </Typography>
-            <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 36, fontWeight: 700 }}>
+            <Typography
+              sx={{
+                fontFamily: fontFamily.serif,
+                fontSize: 36,
+                fontWeight: 700,
+              }}
+            >
               {w.bride}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>
@@ -115,11 +169,16 @@ export default function PublicInvitation() {
           </Box>
 
           <CardContent sx={{ p: 4 }}>
-            <Stack spacing={4} divider={<Box sx={{ height: 1, background: palette.divider }} />}>
+            <Stack
+              spacing={4}
+              divider={<Box sx={{ height: 1, background: palette.divider }} />}
+            >
               {w.greeting && (
                 <Box>
                   <SectionTitle>인사말</SectionTitle>
-                  <Typography sx={{ whiteSpace: 'pre-line', textAlign: 'center', mt: 2 }}>
+                  <Typography
+                    sx={{ whiteSpace: "pre-line", textAlign: "center", mt: 2 }}
+                  >
                     {w.greeting}
                   </Typography>
                 </Box>
@@ -143,8 +202,8 @@ export default function PublicInvitation() {
                     background: palette.surface,
                     border: `1px dashed ${palette.border}`,
                     borderRadius: `${radii.md}px`,
-                    display: 'grid',
-                    placeItems: 'center',
+                    display: "grid",
+                    placeItems: "center",
                     color: palette.textMuted,
                   }}
                 >
@@ -157,13 +216,18 @@ export default function PublicInvitation() {
 
         <Typography
           variant="caption"
-          sx={{ display: 'block', color: 'rgba(255,255,255,0.6)', textAlign: 'center', mt: 3 }}
+          sx={{
+            display: "block",
+            color: "rgba(255,255,255,0.6)",
+            textAlign: "center",
+            mt: 3,
+          }}
         >
           made with 오즈청첩장
         </Typography>
       </Box>
     </Box>
-  )
+  );
 }
 
 function SectionTitle({ children }) {
@@ -174,39 +238,27 @@ function SectionTitle({ children }) {
         fontFamily: fontFamily.serif,
         fontWeight: 700,
         fontSize: 20,
-        letterSpacing: '0.05em',
+        letterSpacing: "0.05em",
         color: palette.primary,
       }}
     >
       {children}
     </Typography>
-  )
+  );
 }
 
 function Row({ label, value }) {
-  if (!value) return null
+  if (!value) return null;
   return (
-    <Stack direction="row" spacing={2} sx={{ borderBottom: `1px solid ${palette.divider}`, pb: 1 }}>
-      <Typography sx={{ width: 56, color: palette.textMuted }}>{label}</Typography>
+    <Stack
+      direction="row"
+      spacing={2}
+      sx={{ borderBottom: `1px solid ${palette.divider}`, pb: 1 }}
+    >
+      <Typography sx={{ width: 56, color: palette.textMuted }}>
+        {label}
+      </Typography>
       <Typography sx={{ flex: 1 }}>{value}</Typography>
     </Stack>
-  )
-}
-
-function formatKoreanDate(date, time) {
-  if (!date) return ''
-  try {
-    const d = new Date(`${date}T${time || '00:00'}:00`)
-    if (Number.isNaN(d.getTime())) return `${date} ${time || ''}`.trim()
-    const yy = d.getFullYear()
-    const mm = String(d.getMonth() + 1).padStart(2, '0')
-    const dd = String(d.getDate()).padStart(2, '0')
-    const days = ['일', '월', '화', '수', '목', '금', '토']
-    const dow = days[d.getDay()]
-    const hh = d.getHours()
-    const mi = String(d.getMinutes()).padStart(2, '0')
-    return `${yy}년 ${mm}월 ${dd}일 (${dow}) ${time ? `${hh}시 ${mi}분` : ''}`.trim()
-  } catch {
-    return `${date} ${time || ''}`.trim()
-  }
+  );
 }

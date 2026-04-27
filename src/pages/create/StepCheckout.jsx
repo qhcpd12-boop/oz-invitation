@@ -15,13 +15,11 @@ import Badge from '../../components/Badge.jsx'
 import { useDraft } from './draftContext.js'
 import { getPlanById, PLANS } from '../../lib/pricing.js'
 import { palette, radii } from '../../theme/index.js'
-import { isFirebaseConfigured } from '../../lib/firebase.js'
 
 export default function StepCheckout() {
   const navigate = useNavigate()
   const { invitation, patch } = useDraft()
   const [params] = useSearchParams()
-  const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   const planId = params.get('plan') || invitation?.plan || 'standard'
@@ -32,37 +30,13 @@ export default function StepCheckout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planId, invitation?.id])
 
+  /** 실제 PG·`/api/payments/checkout` 없이, 결제 완료로만 처리 (Firestore rules 상 `paid`는 서버 전용이므로 persist 하지 않음) */
   const onPay = async () => {
-    setError('')
     setSubmitting(true)
-    try {
-      const res = await fetch('/api/payments/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          invitationId: invitation.id,
-          plan: planId,
-        }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data?.error || '결제 세션 생성 실패')
-      if (data.url) {
-        window.location.href = data.url
-      } else {
-        // 데모: 서버 미설정 시 결제 완료 단계로 이동(아카이브용)
-        patch({ status: 'paid', step: 3 })
-        navigate('/create/complete')
-      }
-    } catch (e) {
-      setError(e.message)
-      if (!isFirebaseConfigured) {
-        // 데모 모드: 서버 없이도 흐름 확인 가능
-        patch({ status: 'paid', step: 3 })
-        setTimeout(() => navigate('/create/complete'), 600)
-      }
-    } finally {
-      setSubmitting(false)
-    }
+    await new Promise((r) => setTimeout(r, 450))
+    patch({ status: 'paid', step: 3 }, { persist: false })
+    navigate('/create/complete')
+    setSubmitting(false)
   }
 
   return (
@@ -136,12 +110,10 @@ export default function StepCheckout() {
                   </Typography>
                 </Stack>
 
-                {error && <Alert severity="warning">{error}</Alert>}
-                {!isFirebaseConfigured && (
-                  <Alert severity="info">
-                    데모 모드: 환경변수 미설정 상태입니다. 결제는 시뮬레이션됩니다.
-                  </Alert>
-                )}
+                <Alert severity="info" sx={{ textAlign: 'left' }}>
+                  개발용: 실제 결제·결제 API는 연동하지 않습니다. 버튼을 누르면 결제가 완료된 것으로 처리되며, Firestore의 상태는
+                  그대로 두고 화면만 다음 단계로 넘어갑니다.
+                </Alert>
 
                 <PillButton size="large" disabled={submitting} onClick={onPay}>
                   {submitting ? '결제 진행 중…' : `₩${plan?.priceLabel} 결제하기`}

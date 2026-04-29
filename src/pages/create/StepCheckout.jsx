@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
+  Alert,
   Card,
   CardContent,
   Divider,
@@ -17,6 +18,7 @@ export default function StepCheckout() {
   const navigate = useNavigate()
   const { invitation, patch, flush } = useDraft()
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [name, setName] = useState(invitation?.buyerName || '')
   const [phone, setPhone] = useState(formatPhone(invitation?.buyerPhone || ''))
 
@@ -28,20 +30,51 @@ export default function StepCheckout() {
   const discount = 0
   const finalPrice = Math.max(0, originalPrice - discount)
   const normalizedPhone = normalizePhone(phone)
-  const canPay = !!name.trim() && normalizedPhone.length >= 10
+  const canPay = !!name.trim() && normalizedPhone.length >= 10 && !!template?.id
 
-  /** 실제 PG는 후속 단계에서 연동한다. 현재는 결제 완료 플로우만 검증한다. */
+  /**
+   * 기본은 mock 결제, 배포 시 환경변수로 실결제 경로를 켠다.
+   * VITE_ENABLE_PG=1 && production 일 때만 checkout API 호출.
+   */
   const onPay = async () => {
     if (!canPay) return
     setSubmitting(true)
+    setSubmitError('')
     patch({
       buyerName: name.trim(),
       buyerPhone: normalizedPhone,
     })
     await flush()
-    await new Promise((r) => setTimeout(r, 450))
-    patch({ status: 'paid', step: 3 })
-    navigate('/create/complete')
+    try {
+      if (shouldUseRealCheckout()) {
+        const body = {
+          templateId: template.id,
+          name: name.trim(),
+          phoneNumber: normalizedPhone,
+        }
+        if (isPersistedInvitationId(invitation?.id)) body.invitationId = invitation.id
+
+        const res = await fetch('/api/payments/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+        const json = await res.json()
+        if (!res.ok || !json?.url) {
+          throw new Error(json?.error || '결제 세션 생성 실패')
+        }
+        window.location.assign(json.url)
+        return
+      }
+
+      await new Promise((r) => setTimeout(r, 450))
+      patch({ status: 'paid', step: 3 })
+      navigate('/create/complete')
+    } catch (e) {
+      setSubmitError(e.message || '결제 요청 중 오류가 발생했습니다.')
+      setSubmitting(false)
+      return
+    }
     setSubmitting(false)
   }
 
@@ -97,9 +130,11 @@ export default function StepCheckout() {
         </PillButton>
       </Stack>
 
+      {submitError && <Alert severity="error">{submitError}</Alert>}
+
       {!canPay && (
         <Typography variant="caption" sx={{ color: palette.textMuted }}>
-          결제를 진행하려면 성함과 휴대폰번호를 입력해 주세요.
+          결제를 진행하려면 템플릿 선택 후 성함과 휴대폰번호를 입력해 주세요.
         </Typography>
       )}
     </Stack>
@@ -139,4 +174,12 @@ function formatPhone(value) {
   if (n.length < 4) return n
   if (n.length < 8) return `${n.slice(0, 3)}-${n.slice(3)}`
   return `${n.slice(0, 3)}-${n.slice(3, 7)}-${n.slice(7)}`
+}
+
+function shouldUseRealCheckout() {
+  return import.meta.env.PROD && import.meta.env.VITE_ENABLE_PG === '1'
+}
+
+function isPersistedInvitationId(id) {
+  return !!id && !String(id).startsWith('draft-')
 }

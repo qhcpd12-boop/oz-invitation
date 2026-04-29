@@ -103,16 +103,27 @@ export async function findPublishedBySlug(slug) {
   return { id: d.id, ...d.data() }
 }
 
-export async function publishInvitation(id, slug) {
+export async function publishInvitation(id, slug, draft = null) {
+  const patch = {
+    slug,
+    status: 'published',
+    step: 4,
+    publishedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }
+
+  if (draft) {
+    patch.templateId = draft.templateId || null
+    patch.buyerName = String(draft.buyerName || '').trim()
+    patch.buyerPhone = normalizePhone(draft.buyerPhone)
+    patch.wedding = draft.wedding || emptyWedding()
+    patch.gallery = Array.isArray(draft.gallery) ? draft.gallery : []
+    patch.rsvpEnabled = !!draft.rsvpEnabled
+  }
+
   await setDoc(
     doc(getDb(), COL, id),
-    {
-      slug,
-      status: 'published',
-      step: 4,
-      publishedAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    },
+    patch,
     { merge: true },
   )
 }

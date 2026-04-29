@@ -29,8 +29,7 @@ export default function StepComplete() {
   const { invitation, patch } = useDraft()
   const defaultSlug = useMemo(() => {
     if (!invitation) return ''
-    const base = `${invitation.wedding?.groom || ''}-${invitation.wedding?.bride || ''}`
-    return slugify(base) || `inv-${invitation.id?.slice(0, 6)}`
+    return makeShortSlug(invitation)
   }, [invitation])
 
   const [slug, setSlug] = useState(invitation?.slug || defaultSlug)
@@ -49,7 +48,8 @@ export default function StepComplete() {
     setPublishing(true)
     try {
       if (isFirebaseConfigured) {
-        await publishInvitation(invitation.id, slug)
+        await publishInvitation(invitation.id, slug, invitation)
+        patch({ slug, status: 'published', step: 4 })
       } else {
         patch({ slug, status: 'published', step: 4 })
       }
@@ -65,6 +65,17 @@ export default function StepComplete() {
   const onCopy = async () => {
     try {
       await navigator.clipboard.writeText(publicUrl)
+    } catch {}
+  }
+
+  const onShare = async () => {
+    if (!navigator.share) return onCopy()
+    try {
+      await navigator.share({
+        title: `${invitation?.wedding?.groom || '신랑'} & ${invitation?.wedding?.bride || '신부'} 결혼식 초대장`,
+        text: '모바일 청첩장을 공유합니다.',
+        url: publicUrl,
+      })
     } catch {}
   }
 
@@ -119,6 +130,9 @@ export default function StepComplete() {
                   {publicUrl}
                 </Typography>
                 <Stack direction="row" spacing={1} mt={1.5}>
+                  <PillButton size="small" variant="outline" onClick={onShare}>
+                    공유하기
+                  </PillButton>
                   <PillButton size="small" onClick={onCopy}>
                     링크 복사
                   </PillButton>
@@ -146,4 +160,13 @@ export default function StepComplete() {
       </Card>
     </Stack>
   )
+}
+
+function makeShortSlug(invitation) {
+  const source = `${invitation.id || ''}|${invitation.wedding?.groom || ''}|${invitation.wedding?.bride || ''}`
+  let hash = 0
+  for (let i = 0; i < source.length; i += 1) {
+    hash = (hash * 31 + source.charCodeAt(i)) >>> 0
+  }
+  return hash.toString(36).padStart(8, '0').slice(0, 8)
 }

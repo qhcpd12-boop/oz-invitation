@@ -102,13 +102,13 @@ export default function HeroSection() {
                   variant="luxury"
                   rotate={-6}
                   width={180}
-                  imgSrc="/웨딩사진1.jpg" /* 저장하신 첫 번째 사진 이름으로 변경하세요 (예: /img1.jpg) */
+                  imgSrc="/wedding-luxury.png"
                 />
               </Box>
               <PhoneMockup
                 variant="garden"
                 width={210}
-                imgSrc="/웨딩사진2.jpg" /* 저장하신 두 번째 사진 이름으로 변경하세요 */
+                imgSrc="/wedding-garden.png"
               />
               <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <PhoneMockup
@@ -116,7 +116,7 @@ export default function HeroSection() {
                   rotate={6}
                   width={180}
                   venue="더 그랜드볼룸"
-                  imgSrc="/웨딩사진3.jpg" /* 저장하신 세 번째 사진 이름으로 변경하세요 */
+                  imgSrc="/wedding-classic.png"
                 />
               </Box>
             </Box>

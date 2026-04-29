@@ -1,18 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Alert,
   Box,
-  Card,
-  CardContent,
   CircularProgress,
   Stack,
   Typography,
 } from "@mui/material";
-import { palette, fontFamily, radii, shadows } from "../theme/index.js";
+import PillButton from "../components/PillButton.jsx";
+import TemplateRenderer from "../components/TemplateRenderer.jsx";
+import { palette } from "../theme/index.js";
 import { isFirebaseConfigured } from "../lib/firebase.js";
 import { findPublishedBySlug } from "../lib/invitations/invitationsService.js";
-import { formatKoreanDate } from "../lib/invitations/formatWeddingDate.js";
 
 /**
  * 공개 청첩장 (셸 미적용 · 모바일 퍼스트).
@@ -36,6 +35,7 @@ export default function PublicInvitation() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -61,6 +61,17 @@ export default function PublicInvitation() {
       active = false;
     };
   }, [slug]);
+
+  const publicUrl = typeof window !== "undefined" ? window.location.href : "";
+  const renderData = useMemo(() => {
+    if (!data) return {};
+    return {
+      ...(data.wedding || {}),
+      gallery: Array.isArray(data.gallery) ? data.gallery : [],
+    };
+  }, [data]);
+
+  const templateId = data?.templateId || "luxury-noir";
 
   if (loading) {
     return (
@@ -98,180 +109,48 @@ export default function PublicInvitation() {
     );
   }
 
-  const w = data.wedding || {};
-  const dateStr = formatKoreanDate(w.date, w.time);
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1300);
+    } catch {}
+  };
+
+  const onShare = async () => {
+    if (!navigator.share) return onCopy();
+    try {
+      await navigator.share({
+        title: `${renderData.groom || "신랑"} & ${renderData.bride || "신부"} 결혼식 초대장`,
+        text: "모바일 청첩장을 공유합니다.",
+        url: publicUrl,
+      });
+    } catch {}
+  };
 
   return (
-    <Box sx={{ background: palette.bgDark, minHeight: "100vh", py: 4 }}>
+    <Box sx={{ position: "relative", background: palette.bgDark }}>
+      <TemplateRenderer templateId={templateId} data={renderData} />
       <Box
         sx={{
-          maxWidth: 420,
-          mx: "auto",
-          px: 2,
+          position: "fixed",
+          left: "50%",
+          bottom: 18,
+          transform: "translateX(-50%)",
+          zIndex: 12,
+          width: "min(92vw, 420px)",
+          display: "flex",
+          gap: 1,
+          justifyContent: "center",
         }}
       >
-        <Card
-          sx={{
-            borderRadius: `${radii.lg}px`,
-            boxShadow: shadows.elevated,
-            overflow: "hidden",
-          }}
-        >
-          <Box
-            sx={{
-              background: `linear-gradient(180deg, ${palette.pinkSoft} 0%, #fff 70%)`,
-              py: 7,
-              textAlign: "center",
-            }}
-          >
-            <Typography
-              variant="overline"
-              sx={{
-                letterSpacing: "0.4em",
-                color: palette.primary,
-                fontWeight: 700,
-              }}
-            >
-              WEDDING INVITATION
-            </Typography>
-            <Typography
-              sx={{
-                fontFamily: fontFamily.serif,
-                fontSize: 36,
-                fontWeight: 700,
-                mt: 2,
-              }}
-            >
-              {w.groom}
-            </Typography>
-            <Typography
-              sx={{
-                color: palette.primary,
-                fontFamily: fontFamily.serif,
-                fontSize: 24,
-                my: 1,
-              }}
-            >
-              &
-            </Typography>
-            <Typography
-              sx={{
-                fontFamily: fontFamily.serif,
-                fontSize: 36,
-                fontWeight: 700,
-              }}
-            >
-              {w.bride}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>
-              {dateStr}
-            </Typography>
-          </Box>
-
-          {/* 📸 메인 웨딩 사진이 들어가는 영역입니다 */}
-          <Box
-            component="img"
-            src="/photo1.jpg" /* public 폴더에 넣은 사진 이름으로 변경하세요 (예: /main-photo.jpg) */
-            alt="웨딩 메인 사진"
-            sx={{
-              width: "100%",
-              aspectRatio: "4 / 5", /* 세로로 살짝 긴 비율. 정사각형을 원하시면 "1 / 1"로 변경하세요 */
-              objectFit: "cover",
-              display: "block",
-            }}
-          />
-
-          <CardContent sx={{ p: 4 }}>
-            <Stack
-              spacing={4}
-              divider={<Box sx={{ height: 1, background: palette.divider }} />}
-            >
-              {w.greeting && (
-                <Box>
-                  <SectionTitle>인사말</SectionTitle>
-                  <Typography
-                    sx={{ whiteSpace: "pre-line", textAlign: "center", mt: 2 }}
-                  >
-                    {w.greeting}
-                  </Typography>
-                </Box>
-              )}
-
-              <Box>
-                <SectionTitle>예식 안내</SectionTitle>
-                <Stack spacing={1} mt={2}>
-                  <Row label="일시" value={dateStr} />
-                  <Row label="장소" value={w.venue} />
-                  <Row label="주소" value={w.address} />
-                </Stack>
-              </Box>
-
-              <Box>
-                <SectionTitle>오시는 길</SectionTitle>
-                <Box
-                  sx={{
-                    mt: 2,
-                    height: 180,
-                    background: palette.surface,
-                    border: `1px dashed ${palette.border}`,
-                    borderRadius: `${radii.md}px`,
-                    display: "grid",
-                    placeItems: "center",
-                    color: palette.textMuted,
-                  }}
-                >
-                  네이버 지도 (연동 예정)
-                </Box>
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
-
-        <Typography
-          variant="caption"
-          sx={{
-            display: "block",
-            color: "rgba(255,255,255,0.6)",
-            textAlign: "center",
-            mt: 3,
-          }}
-        >
-          made with 오즈청첩장
-        </Typography>
+        <PillButton fullWidth size="small" variant="outline" onClick={onShare}>
+          공유하기
+        </PillButton>
+        <PillButton fullWidth size="small" onClick={onCopy}>
+          {copied ? "복사됨" : "링크 복사"}
+        </PillButton>
       </Box>
     </Box>
-  );
-}
-
-function SectionTitle({ children }) {
-  return (
-    <Typography
-      align="center"
-      sx={{
-        fontFamily: fontFamily.serif,
-        fontWeight: 700,
-        fontSize: 20,
-        letterSpacing: "0.05em",
-        color: palette.primary,
-      }}
-    >
-      {children}
-    </Typography>
-  );
-}
-
-function Row({ label, value }) {
-  if (!value) return null;
-  return (
-    <Stack
-      direction="row"
-      spacing={2}
-      sx={{ borderBottom: `1px solid ${palette.divider}`, pb: 1 }}
-    >
-      <Typography sx={{ width: 56, color: palette.textMuted }}>
-        {label}
-      </Typography>
-      <Typography sx={{ flex: 1 }}>{value}</Typography>
-    </Stack>
   );
 }

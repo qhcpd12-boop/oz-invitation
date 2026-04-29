@@ -1,0 +1,21 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 초안 이미지 업로드 경로 (MVP, no-auth)
+    // - image/* 만 허용
+    // - 파일 크기 5MB 제한
+    // - invitations/ 하위 경로만 쓰기 허용
+    match /invitations/{invitationId}/{fileName} {
+      allow read: if true;
+      allow write: if request.resource != null
+                   && request.resource.contentType.matches('image/.*')
+                   && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // 기본 거부
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

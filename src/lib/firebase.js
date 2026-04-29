@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
 
 /**
  * Firebase 클라이언트 초기화.
@@ -16,6 +17,7 @@ const cfg = {
 
 let _app = null
 let _db = null
+let _storage = null
 
 function ensureInit() {
   if (_app) return
@@ -26,6 +28,7 @@ function ensureInit() {
   }
   _app = getApps().length ? getApp() : initializeApp(cfg)
   _db = getFirestore(_app)
+  _storage = getStorage(_app)
 }
 
 export function getFirebaseApp() {
@@ -36,6 +39,11 @@ export function getFirebaseApp() {
 export function getDb() {
   ensureInit()
   return _db
+}
+
+export function getStorageClient() {
+  ensureInit()
+  return _storage
 }
 
 export const isFirebaseConfigured = Boolean(cfg.apiKey && cfg.projectId)

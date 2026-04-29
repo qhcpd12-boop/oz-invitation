@@ -1,11 +1,14 @@
-import { Box, Card, CardContent, Grid, IconButton, Stack, Switch, Typography } from '@mui/material'
+import { useState } from 'react'
+import { Alert, Box, Card, CardContent, CircularProgress, Grid, IconButton, Stack, Switch, Typography } from '@mui/material'
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
 import UploadRoundedIcon from '@mui/icons-material/UploadRounded'
 import { useNavigate } from 'react-router-dom'
 import FormField from '../../components/FormField.jsx'
+import MobilePreviewFrame from '../../components/MobilePreviewFrame.jsx'
 import PillButton from '../../components/PillButton.jsx'
 import TemplateRenderer from '../../components/TemplateRenderer.jsx'
 import { getTemplateById } from '../../lib/invitations/templates.js'
+import { uploadImage } from '../../lib/images/uploadImage.js'
 import { useDraft } from './draftContext.js'
 import { palette, radii } from '../../theme/index.js'
 
@@ -17,6 +20,8 @@ export default function StepDetails() {
   const activeTemplateId = invitation.templateId || 'luxury-noir'
   const activeTemplate = getTemplateById(activeTemplateId)
   const gallery = invitation.gallery || []
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
 
   const set = (k) => (e) => patchWedding({ [k]: e.target.value })
   const setRsvp = (e) => patch({ rsvpEnabled: e.target.checked })
@@ -24,18 +29,28 @@ export default function StepDetails() {
   const onAddGalleryImages = async (e) => {
     const files = Array.from(e.target.files || [])
     if (!files.length) return
+    if (uploading) return
     const nextGallery = [...gallery]
+    setUploadError('')
+    setUploading(true)
 
-    for (const file of files) {
-      if (!file.type.startsWith('image/')) continue
-      if (nextGallery.length >= 6) break
-      // 결제 전 단계에서는 로컬 프리뷰만 필요하므로 data URL로 임시 보관한다.
-      const dataUrl = await toDataUrl(file)
-      nextGallery.push(dataUrl)
+    try {
+      for (const [idx, file] of files.entries()) {
+        if (!file.type.startsWith('image/')) continue
+        if (nextGallery.length >= 6) break
+        const url = await uploadImage(file, {
+          invitationId: invitation.id || 'temp',
+          index: idx,
+        })
+        nextGallery.push(url)
+      }
+      patch({ gallery: nextGallery })
+    } catch (err) {
+      setUploadError(err.message || '이미지 업로드에 실패했습니다.')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
     }
-
-    patch({ gallery: nextGallery })
-    e.target.value = ''
   }
 
   const onRemoveGalleryImage = (index) => {
@@ -144,7 +159,7 @@ export default function StepDetails() {
                   <Stack spacing={0.5}>
                     <Typography variant="h5">이미지 업로드</Typography>
                     <Typography variant="body2" color="text.secondary">
-                      최대 6장 업로드 가능. 우측 미리보기 갤러리에 반영됩니다.
+                      최대 6장 업로드 가능.
                     </Typography>
                   </Stack>
 
@@ -155,9 +170,18 @@ export default function StepDetails() {
                     startIcon={<UploadRoundedIcon />}
                     sx={{ alignSelf: 'flex-start' }}
                   >
-                    이미지 선택
-                    <input hidden accept="image/*" multiple type="file" onChange={onAddGalleryImages} />
+                    {uploading ? '업로드 중…' : '이미지 선택'}
+                    <input hidden accept="image/*" multiple type="file" onChange={onAddGalleryImages} disabled={uploading} />
                   </PillButton>
+                  {uploading && (
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <CircularProgress size={16} />
+                      <Typography variant="caption" color="text.secondary">
+                        이미지 업로드 중입니다...
+                      </Typography>
+                    </Stack>
+                  )}
+                  {uploadError && <Alert severity="warning">{uploadError}</Alert>}
 
                   {!gallery.length ? (
                     <Typography variant="caption" color="text.secondary">
@@ -217,19 +241,13 @@ export default function StepDetails() {
                 {activeTemplate?.name || '기본 템플릿'} · {activeTemplate?.style || '미선택'}
               </Typography>
             </CardContent>
-            <Box
-              sx={{
-                borderTop: `1px solid ${palette.border}`,
-                height: { xs: 460, sm: 560, lg: 'calc(100vh - 220px)' },
-                minHeight: 420,
-                overflow: 'auto',
-                background: '#0D0D0D',
-              }}
-            >
-              <TemplateRenderer
-                templateId={activeTemplateId}
-                data={{ ...w, gallery }}
-              />
+            <Box sx={{ borderTop: `1px solid ${palette.border}`, p: 2, background: '#0D0D0D' }}>
+              <MobilePreviewFrame>
+                <TemplateRenderer
+                  templateId={activeTemplateId}
+                  data={{ ...w, gallery }}
+                />
+              </MobilePreviewFrame>
             </Box>
           </Card>
         </Grid>
@@ -245,13 +263,4 @@ export default function StepDetails() {
       </Stack>
     </Stack>
   )
-}
-
-function toDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result || ''))
-    reader.onerror = () => reject(new Error('이미지 읽기 실패'))
-    reader.readAsDataURL(file)
-  })
 }

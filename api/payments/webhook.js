@@ -4,7 +4,7 @@ import { getAdminDb } from '../_lib/firebaseAdmin.js'
 /**
  * POST /api/payments/webhook  (Stripe webhook)
  *
- * 서명 검증 후 orders / invitations 의 상태 머신을 갱신한다.
+ * 서명 검증 후 orders / invitations 상태를 갱신한다.
  *  - checkout.session.completed → paid
  *  - checkout.session.expired   → expired
  *  - payment_intent.payment_failed → failed
@@ -51,11 +51,20 @@ export default async function handler(req, res) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const s = event.data.object
-        const { invitationId, orderId } = s.metadata || {}
+        const {
+          invitationId,
+          orderId,
+          templateId,
+          buyerName,
+          buyerPhone,
+        } = s.metadata || {}
         if (orderId) {
           await db.collection('orders').doc(orderId).set(
             {
               status: 'paid',
+              templateId: templateId || null,
+              buyerName: buyerName || null,
+              buyerPhone: buyerPhone || null,
               pgPaymentIntent: s.payment_intent || null,
               paidAt: new Date(),
             },
@@ -64,7 +73,13 @@ export default async function handler(req, res) {
         }
         if (invitationId) {
           await db.collection('invitations').doc(invitationId).set(
-            { status: 'paid', paidAt: new Date() },
+            {
+              status: 'paid',
+              templateId: templateId || null,
+              buyerName: buyerName || null,
+              buyerPhone: buyerPhone || null,
+              paidAt: new Date(),
+            },
             { merge: true },
           )
         }

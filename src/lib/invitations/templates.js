@@ -1,7 +1,10 @@
 /**
  * 1차 디자인 템플릿(JSON 목업).
  *  - 추후 Firestore `templates` 컬렉션으로 옮길 수 있다.
+ *  - price는 표시용. 결제 금액의 권위적 소스는 서버(api/_lib/templates.js).
  */
+export const UNIFORM_PRICE = 19900
+
 export const TEMPLATES = [
   {
     id: 'luxury-noir',
@@ -9,7 +12,7 @@ export const TEMPLATES = [
     style: '검정·골드',
     mockup: 'luxury',
     badge: '인기',
-    plans: ['standard', 'premium'],
+    price: UNIFORM_PRICE,
   },
   {
     id: 'romantic-rose',
@@ -17,14 +20,14 @@ export const TEMPLATES = [
     style: '블러시·로즈골드',
     mockup: 'classic',
     badge: 'BEST',
-    plans: ['light', 'standard', 'premium'],
+    price: UNIFORM_PRICE,
   },
   {
     id: 'modern-minimal',
     name: '모던 미니멀',
     style: '화이트·블랙 타이포',
     mockup: 'classic',
-    plans: ['light', 'standard', 'premium'],
+    price: UNIFORM_PRICE,
   },
   {
     id: 'garden-bloom',
@@ -32,21 +35,21 @@ export const TEMPLATES = [
     style: '플로럴·연그린',
     mockup: 'garden',
     badge: 'NEW',
-    plans: ['standard', 'premium'],
+    price: UNIFORM_PRICE,
   },
   {
     id: 'classic-letter',
     name: '클래식 편지',
     style: '아이보리·세리프',
     mockup: 'classic',
-    plans: ['light', 'standard', 'premium'],
+    price: UNIFORM_PRICE,
   },
   {
     id: 'midnight-blue',
     name: '미드나잇 블루',
     style: '딥블루·실버',
     mockup: 'luxury',
-    plans: ['premium'],
+    price: UNIFORM_PRICE,
   },
 ]
 

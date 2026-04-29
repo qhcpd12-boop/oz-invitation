@@ -4,18 +4,15 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import PillButton from '../components/PillButton.jsx'
 import { palette, fontFamily } from '../theme/index.js'
-import { useAuth } from '../lib/auth/AuthProvider.jsx'
 
 const NAV = [
   { label: '홈', href: '/#top' },
-  { label: '요금제', href: '/pricing' },
   { label: '디자인', href: '/create/design' },
   { label: '후기', href: '/reviews' },
   { label: '고객센터', href: '/#cs' },
 ]
 
 export default function AppHeader() {
-  const { user, signOut, signIn } = useAuth()
   const navigate = useNavigate()
   const isCompact = useMediaQuery('(max-width:900px)')
   const [open, setOpen] = useState(false)
@@ -77,25 +74,12 @@ export default function AppHeader() {
 
         {!isCompact ? (
           <Stack direction="row" spacing={1.5}>
-            {user ? (
-              <>
-                <PillButton variant="outline" onClick={() => navigate('/create')}>
-                  내 청첩장
-                </PillButton>
-                <PillButton variant="filled" onClick={signOut}>
-                  로그아웃
-                </PillButton>
-              </>
-            ) : (
-              <>
-                <PillButton variant="outline" onClick={signIn}>
-                  로그인
-                </PillButton>
-                <PillButton variant="filled" onClick={() => navigate('/signup')}>
-                  무료 시작하기
-                </PillButton>
-              </>
-            )}
+            <PillButton variant="outline" onClick={() => navigate('/orders')}>
+              주문 조회
+            </PillButton>
+            <PillButton variant="filled" onClick={() => navigate('/create/design')}>
+              청첩장 만들기
+            </PillButton>
           </Stack>
         ) : (
           <IconButton onClick={() => setOpen((v) => !v)} aria-label="menu">
@@ -126,20 +110,12 @@ export default function AppHeader() {
             </Box>
           ))}
           <Stack direction="row" spacing={1.5} pt={1}>
-            {user ? (
-              <PillButton fullWidth onClick={signOut}>
-                로그아웃
-              </PillButton>
-            ) : (
-              <>
-                <PillButton variant="outline" fullWidth onClick={signIn}>
-                  로그인
-                </PillButton>
-                <PillButton fullWidth onClick={() => navigate('/signup')}>
-                  무료 시작
-                </PillButton>
-              </>
-            )}
+            <PillButton variant="outline" fullWidth onClick={() => navigate('/orders')}>
+              주문 조회
+            </PillButton>
+            <PillButton fullWidth onClick={() => navigate('/create/design')}>
+              청첩장 만들기
+            </PillButton>
           </Stack>
         </Stack>
       )}

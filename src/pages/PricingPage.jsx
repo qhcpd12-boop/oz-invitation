@@ -7,19 +7,12 @@ import PricingCard from '../components/PricingCard.jsx'
 import SectionContainer from '../components/SectionContainer.jsx'
 import { palette, radii } from '../theme/index.js'
 import { ADDONS, COMPARE_COLUMNS, COMPARE_ROWS, PLANS } from '../lib/pricing.js'
-import { useAuth } from '../lib/auth/AuthProvider.jsx'
 
 export default function PricingPage() {
   const navigate = useNavigate()
-  const { user } = useAuth()
 
   const onSelectPlan = (planId) => {
-    const target = `/create/checkout?plan=${planId}`
-    if (!user) {
-      navigate(`/signup?next=${encodeURIComponent(target)}`)
-    } else {
-      navigate(target)
-    }
+    navigate(`/create/checkout?plan=${planId}`)
   }
 
   return (

@@ -1,10 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./layouts/AppLayout.jsx";
-import RequireAuth from "./lib/auth/RequireAuth.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
-import LoginPage from "./pages/LoginPage.jsx";
-import SignupPage from "./pages/SignupPage.jsx";
-import PricingPage from "./pages/PricingPage.jsx";
 import ReviewsPage from "./pages/ReviewsPage.jsx";
 import StyleGuide from "./pages/StyleGuide.jsx";
 import CreateLayout from "./pages/create/CreateLayout.jsx";
@@ -23,20 +19,11 @@ export default function App() {
       {/* 셸이 적용되는 라우트 */}
       <Route element={<AppLayout />}>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/pricing" element={<Navigate to="/create/design" replace />} />
         <Route path="/reviews" element={<ReviewsPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
         <Route path="/dev/_styleguide" element={<StyleGuide />} />
 
-        <Route
-          path="/create"
-          element={
-            // <RequireAuth>
-            <CreateLayout />
-            // </RequireAuth>
-          }
-        >
+        <Route path="/create" element={<CreateLayout />}>
           <Route index element={<Navigate to="design" replace />} />
           <Route path="design" element={<StepDesign />} />
           <Route path="details" element={<StepDetails />} />

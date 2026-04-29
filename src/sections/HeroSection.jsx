@@ -24,41 +24,56 @@ export default function HeroSection() {
           spacing={{ xs: 6, md: 6 }}
           alignItems={{ md: 'center' }}
           justifyContent="space-between"
+          sx={{ width: '100%', minWidth: 0 }}
         >
-          <Stack spacing={3} sx={{ flex: 1, maxWidth: 620 }}>
+          {/* minWidth: 0 과 width: '100%'를 추가하여 텍스트 길이에 맞춰 박스가 늘어나는 것을 강제로 막습니다. */}
+          <Stack spacing={3} sx={{ flex: 1, maxWidth: 620, minWidth: 0, width: '100%' }}>
             <Box>
               <Badge>✨ 2만 커플이 선택한 모바일 청첩장</Badge>
             </Box>
 
             <Typography
               component="h1"
+              className="hero-text"
               sx={{
                 fontFamily: fontFamily.serif,
                 fontWeight: 700,
-                fontSize: { xs: 36, sm: 44, md: 56 },
-                lineHeight: 1.2,
-                letterSpacing: '-0.01em',
+                fontSize: { xs: 34, sm: 44, md: 56 }, /* 모바일에서 텍스트가 넘치지 않게 살짝 축소 */
+                lineHeight: 1.3,
+                letterSpacing: '-0.02em',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'keep-all',
+                overflowWrap: 'break-word',
+                width: '100%',
               }}
             >
-              우리만의 특별한 순간을
+              우리들만의
+              <br />
+              특별한 순간을
               <br />
               <GradientText>아름다운 청첩장</GradientText>으로
               <br />
               영원히 간직하세요
             </Typography>
 
-            <Typography variant="subtitle1" color="text.secondary">
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              sx={{
+                whiteSpace: 'normal',
+                wordBreak: 'keep-all',
+                overflowWrap: 'anywhere',
+              }}
+            >
               전문 업체 가격의 1/10로 프리미엄 모바일 청첩장을 만들어 보세요.
-              <br />
-              예식 후 사진·방명록·축하 음성까지 모두 다운로드하여 영구 보관할 수 있습니다.
             </Typography>
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <PillButton size="large" onClick={() => navigate('/signup')}>
                 지금 바로 만들기 →
               </PillButton>
-              <PillButton size="large" variant="outline" onClick={() => navigate('/pricing')}>
-                디자인 미리보기
+              <PillButton size="large" variant="outline" onClick={() => navigate('/create/design')}>
+                디자인 템플릿 선택하기
               </PillButton>
             </Stack>
           </Stack>
@@ -83,11 +98,26 @@ export default function HeroSection() {
               }}
             >
               <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-                <PhoneMockup variant="luxury" rotate={-6} width={180} />
+                <PhoneMockup
+                  variant="luxury"
+                  rotate={-6}
+                  width={180}
+                  imgSrc="/웨딩사진1.jpg" /* 저장하신 첫 번째 사진 이름으로 변경하세요 (예: /img1.jpg) */
+                />
               </Box>
-              <PhoneMockup variant="garden" width={210} />
+              <PhoneMockup
+                variant="garden"
+                width={210}
+                imgSrc="/웨딩사진2.jpg" /* 저장하신 두 번째 사진 이름으로 변경하세요 */
+              />
               <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-                <PhoneMockup variant="classic" rotate={6} width={180} venue="더 그랜드볼룸" />
+                <PhoneMockup
+                  variant="classic"
+                  rotate={6}
+                  width={180}
+                  venue="더 그랜드볼룸"
+                  imgSrc="/웨딩사진3.jpg" /* 저장하신 세 번째 사진 이름으로 변경하세요 */
+                />
               </Box>
             </Box>
           </Box>

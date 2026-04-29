@@ -19,7 +19,9 @@ export default function GradientText({
         backgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         color: 'transparent',
-        display: 'inline-block',
+        display: 'inline',
+        WebkitBoxDecorationBreak: 'clone', /* 텍스트가 줄바꿈되어도 그라데이션이 각 줄에 정상 적용되도록 함 */
+        boxDecorationBreak: 'clone',
         ...sx,
       }}
     >

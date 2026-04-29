@@ -4,7 +4,8 @@ import { onAuthChange, signOutUser } from './authService.js'
 const AuthContext = createContext({
   user: null,
   loading: true,
-  signOut: async () => {},
+  signOut: async () => { },
+  signIn: async () => { },
 })
 
 export function AuthProvider({ children }) {
@@ -12,7 +13,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    let unsub = () => {}
+    let unsub = () => { }
     try {
       unsub = onAuthChange((u) => {
         setUser(u)
@@ -27,8 +28,19 @@ export function AuthProvider({ children }) {
     return () => unsub()
   }, [])
 
+  // UI 테스트용 가짜 로그인 함수
+  const mockSignIn = async () => {
+    setUser({ uid: 'test-uid', email: 'test@oz.com', displayName: '테스트 유저' })
+  }
+
+  // UI 테스트용 가짜 로그아웃 함수
+  const mockSignOut = async () => {
+    setUser(null)
+    try { await signOutUser() } catch (e) { } // 실제 firebase 연동이 안 되어 있어도 에러 무시
+  }
+
   const value = useMemo(
-    () => ({ user, loading, signOut: signOutUser }),
+    () => ({ user, loading, signOut: mockSignOut, signIn: mockSignIn }),
     [user, loading],
   )
 

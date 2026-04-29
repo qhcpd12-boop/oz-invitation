@@ -168,6 +168,19 @@ export default function PublicInvitation() {
             </Typography>
           </Box>
 
+          {/* 📸 메인 웨딩 사진이 들어가는 영역입니다 */}
+          <Box
+            component="img"
+            src="/photo1.jpg" /* public 폴더에 넣은 사진 이름으로 변경하세요 (예: /main-photo.jpg) */
+            alt="웨딩 메인 사진"
+            sx={{
+              width: "100%",
+              aspectRatio: "4 / 5", /* 세로로 살짝 긴 비율. 정사각형을 원하시면 "1 / 1"로 변경하세요 */
+              objectFit: "cover",
+              display: "block",
+            }}
+          />
+
           <CardContent sx={{ p: 4 }}>
             <Stack
               spacing={4}

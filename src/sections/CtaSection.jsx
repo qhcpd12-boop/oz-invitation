@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import PillButton from '../components/PillButton.jsx'
 import SectionContainer from '../components/SectionContainer.jsx'
 import { palette, radii, shadows } from '../theme/index.js'
+import { useAuth } from '../lib/auth/AuthProvider.jsx'
 
 export default function CtaSection() {
   const navigate = useNavigate()
+  const { signIn } = useAuth()
+
   return (
     <SectionContainer tone="surface" py={{ xs: 6, md: 10 }} id="cs">
       <Box

@@ -9,13 +9,13 @@ import { useAuth } from '../lib/auth/AuthProvider.jsx'
 const NAV = [
   { label: '홈', href: '/#top' },
   { label: '요금제', href: '/pricing' },
-  { label: '디자인', href: '/#designs' },
+  { label: '디자인', href: '/create/design' },
   { label: '후기', href: '/#testimonials' },
   { label: '고객센터', href: '/#cs' },
 ]
 
 export default function AppHeader() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, signIn } = useAuth()
   const navigate = useNavigate()
   const isCompact = useMediaQuery('(max-width:900px)')
   const [open, setOpen] = useState(false)
@@ -88,7 +88,7 @@ export default function AppHeader() {
               </>
             ) : (
               <>
-                <PillButton variant="outline" onClick={() => navigate('/login')}>
+                <PillButton variant="outline" onClick={signIn}>
                   로그인
                 </PillButton>
                 <PillButton variant="filled" onClick={() => navigate('/signup')}>
@@ -132,7 +132,7 @@ export default function AppHeader() {
               </PillButton>
             ) : (
               <>
-                <PillButton variant="outline" fullWidth onClick={() => navigate('/login')}>
+                <PillButton variant="outline" fullWidth onClick={signIn}>
                   로그인
                 </PillButton>
                 <PillButton fullWidth onClick={() => navigate('/signup')}>

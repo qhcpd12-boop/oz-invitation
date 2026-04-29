@@ -33,11 +33,18 @@ export default function PhoneMockup({
   bride = '이서연',
   date = '2026.05.24 SAT',
   venue,
+  imgSrc,
   width = 220,
   rotate = 0,
 }) {
   const p = PRESET[variant]
   const height = Math.round(width * 2)
+  const hasImage = !!imgSrc
+
+  // 이미지가 있을 경우 반투명 오버레이와 이미지를 다중 배경(background)으로 설정
+  const backgroundStyle = hasImage
+    ? `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${imgSrc}')`
+    : p.bg;
 
   return (
     <Box
@@ -45,8 +52,10 @@ export default function PhoneMockup({
         width,
         height,
         borderRadius: `${Math.round(width * 0.16)}px`,
-        background: p.bg,
-        color: p.color,
+        background: backgroundStyle,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        color: hasImage ? '#fff' : p.color,
         boxShadow: shadows.elevated,
         transform: `rotate(${rotate}deg)`,
         p: 2.5,
@@ -56,15 +65,18 @@ export default function PhoneMockup({
         justifyContent: 'center',
         textAlign: 'center',
         border: `1px solid rgba(255,255,255,0.08)`,
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <Stack spacing={1.5} alignItems="center">
+      <Stack spacing={1.5} alignItems="center" sx={{ position: 'relative', zIndex: 2 }}>
         <Typography
           variant="overline"
           sx={{ letterSpacing: '0.3em', color: p.accent, fontWeight: 700 }}
         >
           WEDDING
         </Typography>
+
         <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 22, fontWeight: 700 }}>
           {groom}
         </Typography>

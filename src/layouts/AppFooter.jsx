@@ -5,7 +5,7 @@ import { palette, fontFamily } from '../theme/index.js'
 const LINKS = [
   ['이용약관', '/terms'],
   ['개인정보처리방침', '/privacy'],
-  ['요금제', '/#pricing'],
+  ['요금제', '/pricing'],
   ['사업자 정보', '/business'],
 ]
 

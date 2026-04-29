@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./layouts/AppLayout.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
+import PricingLandingPage from "./pages/PricingLandingPage.jsx";
 import ReviewsPage from "./pages/ReviewsPage.jsx";
 import StyleGuide from "./pages/StyleGuide.jsx";
 import CreateLayout from "./pages/create/CreateLayout.jsx";
@@ -20,7 +21,7 @@ export default function App() {
       {/* 셸이 적용되는 라우트 */}
       <Route element={<AppLayout />}>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/pricing" element={<Navigate to="/create/design" replace />} />
+        <Route path="/pricing" element={<PricingLandingPage />} />
         <Route path="/reviews" element={<ReviewsPage />} />
         <Route path="/orders" element={<OrdersLookupPage />} />
         <Route path="/dev/_styleguide" element={<StyleGuide />} />

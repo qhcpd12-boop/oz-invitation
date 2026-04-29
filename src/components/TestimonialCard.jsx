@@ -25,7 +25,7 @@ export default function TestimonialCard({ rating = 5, quote, avatar, name, perio
           <Typography
             variant="body1"
             color="text.secondary"
-            sx={{ whiteSpace: 'pre-line', minHeight: 88 }}
+            sx={{ whiteSpace: 'pre-line', minHeight: 88, lineHeight: 1.75, textIndent: '0.5em' }}
           >
             “{quote}”
           </Typography>

@@ -25,7 +25,7 @@ export default function HeroSection() {
           alignItems={{ md: 'center' }}
           justifyContent="space-between"
         >
-          <Stack spacing={3} sx={{ flex: 1, maxWidth: 620 }}>
+          <Stack spacing={2.5} sx={{ flex: 1, maxWidth: 620 }}>
             <Box>
               <Badge>✨ 2만 커플이 선택한 모바일 청첩장</Badge>
             </Box>
@@ -35,25 +35,32 @@ export default function HeroSection() {
               sx={{
                 fontFamily: fontFamily.serif,
                 fontWeight: 700,
-                fontSize: { xs: 36, sm: 44, md: 56 },
+                fontSize: { xs: 34, sm: 44, md: 56 },
                 lineHeight: 1.2,
                 letterSpacing: '-0.01em',
+                pl: { xs: '0.08em', md: 0 },
               }}
             >
-              우리만의 특별한 순간을
+              우리만의
               <br />
-              <GradientText>아름다운 청첩장</GradientText>으로
+              특별한 순간을
+              <br />
+              <GradientText>아름다운 청첩장으로</GradientText>
               <br />
               영원히 간직하세요
             </Typography>
 
-            <Typography variant="subtitle1" color="text.secondary">
-              전문 업체 가격의 1/10로 프리미엄 모바일 청첩장을 만들어 보세요.
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              sx={{ lineHeight: 1.7, textIndent: 0, pl: 0, ml: 0 }}
+            >
+              예식 후 사진·방명록·축하 음성까지
               <br />
-              예식 후 사진·방명록·축하 음성까지 모두 다운로드하여 영구 보관할 수 있습니다.
+              모두 다운로드하여 영구 보관할 수 있습니다.
             </Typography>
 
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2.25}>
               <PillButton size="large" onClick={() => navigate('/signup')}>
                 지금 바로 만들기 →
               </PillButton>

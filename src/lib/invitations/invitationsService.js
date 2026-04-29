@@ -137,6 +137,7 @@ export async function findInvitationsByBuyer({ name, phoneNumber }) {
     collection(getDb(), COL),
     where('buyerName', '==', buyerName),
     where('buyerPhone', '==', buyerPhone),
+    where('status', 'in', ['paid', 'published']),
     limit(10),
   )
   const snap = await getDocs(q)

@@ -1,40 +1,46 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
-  Alert,
-  Box,
   Card,
   CardContent,
   Divider,
-  Grid,
   Stack,
+  TextField,
   Typography,
 } from '@mui/material'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import PillButton from '../../components/PillButton.jsx'
-import Badge from '../../components/Badge.jsx'
 import { useDraft } from './draftContext.js'
-import { getPlanById, PLANS } from '../../lib/pricing.js'
-import { palette, radii } from '../../theme/index.js'
+import { getTemplateById, UNIFORM_PRICE } from '../../lib/invitations/templates.js'
+import { palette } from '../../theme/index.js'
 
 export default function StepCheckout() {
   const navigate = useNavigate()
-  const { invitation, patch } = useDraft()
-  const [params] = useSearchParams()
+  const { invitation, patch, flush } = useDraft()
   const [submitting, setSubmitting] = useState(false)
+  const [name, setName] = useState(invitation?.buyerName || '')
+  const [phone, setPhone] = useState(formatPhone(invitation?.buyerPhone || ''))
 
-  const planId = params.get('plan') || invitation?.plan || 'standard'
-  const plan = getPlanById(planId)
+  const template = useMemo(
+    () => getTemplateById(invitation?.templateId || ''),
+    [invitation?.templateId],
+  )
+  const originalPrice = template?.price || UNIFORM_PRICE
+  const discount = 0
+  const finalPrice = Math.max(0, originalPrice - discount)
+  const normalizedPhone = normalizePhone(phone)
+  const canPay = !!name.trim() && normalizedPhone.length >= 10
 
-  useEffect(() => {
-    if (invitation && invitation.plan !== planId) patch({ plan: planId })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [planId, invitation?.id])
-
-  /** 실제 PG·`/api/payments/checkout` 없이, 결제 완료로만 처리 (Firestore rules 상 `paid`는 서버 전용이므로 persist 하지 않음) */
+  /** 실제 PG는 후속 단계에서 연동한다. 현재는 결제 완료 플로우만 검증한다. */
   const onPay = async () => {
+    if (!canPay) return
     setSubmitting(true)
+    patch({
+      buyerName: name.trim(),
+      buyerPhone: normalizedPhone,
+    })
+    await flush()
     await new Promise((r) => setTimeout(r, 450))
-    patch({ status: 'paid', step: 3 }, { persist: false })
+    patch({ status: 'paid', step: 3 })
     navigate('/create/complete')
     setSubmitting(false)
   }
@@ -42,90 +48,95 @@ export default function StepCheckout() {
   return (
     <Stack spacing={3}>
       <Typography color="text.secondary">
-        결제 후 즉시 청첩장이 발행되며, 마이페이지에서 언제든 수정할 수 있습니다.
+        결제 정보를 확인해 주세요. 성함과 휴대폰번호는 이후 주문 조회에 사용됩니다.
       </Typography>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={7}>
-          <Card>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="h5">요금제 선택</Typography>
-                <Stack spacing={1.5}>
-                  {PLANS.map((p) => {
-                    const active = p.id === planId
-                    return (
-                      <Box
-                        key={p.id}
-                        onClick={() => navigate(`/create/checkout?plan=${p.id}`)}
-                        sx={{
-                          cursor: 'pointer',
-                          p: 2.5,
-                          borderRadius: `${radii.md}px`,
-                          border: `2px solid ${active ? palette.primary : palette.border}`,
-                          background: active ? palette.pinkSoft : '#fff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <Stack>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <Typography fontWeight={700}>{p.name}</Typography>
-                            {p.badge && <Badge>{p.badge}</Badge>}
-                          </Stack>
-                          <Typography variant="caption" color="text.secondary">
-                            {p.tagline}
-                          </Typography>
-                        </Stack>
-                        <Typography fontWeight={700}>₩{p.priceLabel}</Typography>
-                      </Box>
-                    )
-                  })}
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
+      <Card>
+        <CardContent>
+          <Stack spacing={2.25}>
+            <Typography variant="h5">결제 정보</Typography>
 
-        <Grid item xs={12} md={5}>
-          <Card>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="h5">결제 요약</Typography>
-                <Divider />
-                <Stack direction="row" justifyContent="space-between">
-                  <Typography color="text.secondary">{plan?.name} 요금제</Typography>
-                  <Typography>₩{plan?.priceLabel}</Typography>
-                </Stack>
-                <Stack direction="row" justifyContent="space-between">
-                  <Typography color="text.secondary">VAT</Typography>
-                  <Typography>포함</Typography>
-                </Stack>
-                <Divider />
-                <Stack direction="row" justifyContent="space-between">
-                  <Typography fontWeight={700}>총 결제 금액</Typography>
-                  <Typography fontWeight={700} color="primary">
-                    ₩{plan?.priceLabel}
-                  </Typography>
-                </Stack>
+            <PaymentRow label="성함">
+              <TextField
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="홍길동"
+              />
+            </PaymentRow>
+            <Divider />
 
-                <Alert severity="info" sx={{ textAlign: 'left' }}>
-                  개발용: 실제 결제·결제 API는 연동하지 않습니다. 버튼을 누르면 결제가 완료된 것으로 처리되며, Firestore의 상태는
-                  그대로 두고 화면만 다음 단계로 넘어갑니다.
-                </Alert>
+            <PaymentRow label="휴대폰번호">
+              <TextField
+                value={phone}
+                onChange={(e) => setPhone(formatPhone(e.target.value))}
+                placeholder="010-1234-5678"
+              />
+            </PaymentRow>
+            <Divider />
 
-                <PillButton size="large" disabled={submitting} onClick={onPay}>
-                  {submitting ? '결제 진행 중…' : `₩${plan?.priceLabel} 결제하기`}
-                </PillButton>
-                <PillButton variant="outline" onClick={() => navigate('/create/details')}>
-                  ← 정보 다시 보기
-                </PillButton>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+            <PaymentRow label="템플릿명" value={template?.name || '미선택'} />
+            <Divider />
+
+            <PaymentRow label="정가" value={toWon(originalPrice)} />
+            <Divider />
+
+            <PaymentRow label="할인" value={toWon(discount)} />
+            <Divider />
+
+            <PaymentRow label="결제금액" value={toWon(finalPrice)} strong />
+          </Stack>
+        </CardContent>
+      </Card>
+
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between">
+        <PillButton variant="outline" onClick={() => navigate('/create/details')}>
+          ← 정보 다시 보기
+        </PillButton>
+        <PillButton size="large" disabled={!canPay || submitting} onClick={onPay}>
+          {submitting ? '결제 진행 중…' : `${toWon(finalPrice)} 결제하기`}
+        </PillButton>
+      </Stack>
+
+      {!canPay && (
+        <Typography variant="caption" sx={{ color: palette.textMuted }}>
+          결제를 진행하려면 성함과 휴대폰번호를 입력해 주세요.
+        </Typography>
+      )}
     </Stack>
   )
+}
+
+function PaymentRow({ label, value, strong = false, children }) {
+  return (
+    <Stack
+      direction={{ xs: 'column', sm: 'row' }}
+      spacing={1}
+      justifyContent="space-between"
+      alignItems={{ sm: 'center' }}
+    >
+      <Typography color="text.secondary" sx={{ minWidth: 88 }}>
+        {label}
+      </Typography>
+      {children || (
+        <Typography fontWeight={strong ? 700 : 500} color={strong ? 'primary' : 'text.primary'}>
+          {value}
+        </Typography>
+      )}
+    </Stack>
+  )
+}
+
+function toWon(amount) {
+  return `₩${Number(amount || 0).toLocaleString()}`
+}
+
+function normalizePhone(value) {
+  return String(value || '').replace(/\D+/g, '')
+}
+
+function formatPhone(value) {
+  const n = normalizePhone(value).slice(0, 11)
+  if (n.length < 4) return n
+  if (n.length < 8) return `${n.slice(0, 3)}-${n.slice(3)}`
+  return `${n.slice(0, 3)}-${n.slice(3, 7)}-${n.slice(7)}`
 }

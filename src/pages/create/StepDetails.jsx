@@ -240,7 +240,7 @@ export default function StepDetails() {
           ← 이전
         </PillButton>
         <PillButton size="large" onClick={onNext}>
-          결제하기 →
+          저장 & 결제하기 →
         </PillButton>
       </Stack>
     </Stack>

@@ -131,7 +131,7 @@ export default function ReviewsPage() {
               지금 시작하면 평균 3분 안에 첫 청첩장이 완성됩니다.
             </Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={1}>
-              <PillButton size="large" onClick={() => navigate('/signup')}>
+              <PillButton size="large" onClick={() => navigate('/create/design')}>
                 무료로 시작하기 →
               </PillButton>
               <PillButton size="large" variant="outline" onClick={() => navigate('/pricing')}>

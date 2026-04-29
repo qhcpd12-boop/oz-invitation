@@ -75,7 +75,7 @@ export default function AppHeader() {
         {!isCompact ? (
           <Stack direction="row" spacing={1.5}>
             <PillButton variant="outline" onClick={() => navigate('/orders')}>
-              주문 조회
+              템플릿 주문 조회
             </PillButton>
             <PillButton variant="filled" onClick={() => navigate('/create/design')}>
               청첩장 만들기
@@ -111,7 +111,7 @@ export default function AppHeader() {
           ))}
           <Stack direction="row" spacing={1.5} pt={1}>
             <PillButton variant="outline" fullWidth onClick={() => navigate('/orders')}>
-              주문 조회
+              템플릿 주문 조회
             </PillButton>
             <PillButton fullWidth onClick={() => navigate('/create/design')}>
               청첩장 만들기

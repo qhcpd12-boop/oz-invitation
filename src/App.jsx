@@ -9,6 +9,7 @@ import StepDetails from "./pages/create/StepDetails.jsx";
 import StepCheckout from "./pages/create/StepCheckout.jsx";
 import StepComplete from "./pages/create/StepComplete.jsx";
 import PublicInvitation from "./pages/PublicInvitation.jsx";
+import OrdersLookupPage from "./pages/OrdersLookupPage.jsx";
 import ExampleLuxuryNoir from "./pages/examples/ExampleLuxuryNoir.jsx";
 import ExampleGardenBloom from "./pages/examples/ExampleGardenBloom.jsx";
 import NotFound from "./pages/NotFound.jsx";
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/pricing" element={<Navigate to="/create/design" replace />} />
         <Route path="/reviews" element={<ReviewsPage />} />
+        <Route path="/orders" element={<OrdersLookupPage />} />
         <Route path="/dev/_styleguide" element={<StyleGuide />} />
 
         <Route path="/create" element={<CreateLayout />}>

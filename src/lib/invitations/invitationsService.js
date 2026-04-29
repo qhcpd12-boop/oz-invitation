@@ -116,3 +116,23 @@ export async function publishInvitation(id, slug) {
     { merge: true },
   )
 }
+
+export async function findInvitationsByBuyer({ name, phoneNumber }) {
+  const buyerName = String(name || '').trim()
+  const buyerPhone = normalizePhone(phoneNumber)
+  if (!buyerName || !buyerPhone) return []
+
+  const q = query(
+    collection(getDb(), COL),
+    where('buyerName', '==', buyerName),
+    where('buyerPhone', '==', buyerPhone),
+    limit(10),
+  )
+  const snap = await getDocs(q)
+  if (snap.empty) return []
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+}
+
+function normalizePhone(value) {
+  return String(value || '').replace(/\D+/g, '')
+}

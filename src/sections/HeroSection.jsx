@@ -69,7 +69,7 @@ export default function HeroSection() {
             </Typography>
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-              <PillButton size="large" onClick={() => navigate('/signup')}>
+              <PillButton size="large" onClick={() => navigate('/create/design')}>
                 지금 바로 만들기 →
               </PillButton>
               <PillButton size="large" variant="outline" onClick={() => navigate('/create/design')}>

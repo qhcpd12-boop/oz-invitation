@@ -12,6 +12,7 @@ const DEFAULT_DATA = {
   address: '서울시 용산구 소월로 322',
   greeting:
     '저희 두 사람이 사랑으로 하나가 되는 자리에\n소중한 분들을 초대합니다.\n따뜻한 축복으로 함께해 주시면 감사하겠습니다.',
+  gallery: [],
 }
 
 const GOLD = '#E5C088'
@@ -89,6 +90,29 @@ export default function ExampleLuxuryNoir({ data }) {
                   네이버 지도 (연동 예정)
                 </Box>
               </Box>
+              {!!w.gallery?.length && (
+                <Box>
+                  <TitleLuxury>갤러리</TitleLuxury>
+                  <Stack direction="row" spacing={1.25} mt={2} sx={{ overflowX: 'auto', pb: 0.5 }}>
+                    {w.gallery.slice(0, 6).map((src, index) => (
+                      <Box
+                        key={`${src.slice(0, 24)}-${index}`}
+                        component="img"
+                        src={src}
+                        alt={`gallery-${index + 1}`}
+                        sx={{
+                          width: 104,
+                          height: 104,
+                          flex: '0 0 auto',
+                          objectFit: 'cover',
+                          borderRadius: `${radii.md}px`,
+                          border: '1px solid rgba(229,192,136,0.25)',
+                        }}
+                      />
+                    ))}
+                  </Stack>
+                </Box>
+              )}
             </Stack>
           </CardContent>
         </Card>
@@ -103,8 +127,12 @@ export default function ExampleLuxuryNoir({ data }) {
 
 function mergeData(data) {
   if (!data) return DEFAULT_DATA
-  const merged = { ...DEFAULT_DATA }
+  const merged = { ...DEFAULT_DATA, gallery: [] }
   for (const key of Object.keys(DEFAULT_DATA)) {
+    if (key === 'gallery') {
+      if (Array.isArray(data.gallery) && data.gallery.length) merged.gallery = data.gallery
+      continue
+    }
     if (data[key]) merged[key] = data[key]
   }
   return merged

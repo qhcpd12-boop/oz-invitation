@@ -12,6 +12,7 @@ const DEFAULT_DATA = {
   address: '서울시 송파구 올림픽로 300 롯데월드타워',
   greeting:
     '봄날의 햇살처럼 따뜻한 마음으로\n저희의 새로운 시작을 축복해 주시면 감사하겠습니다.\n소중한 걸음으로 함께해 주세요.',
+  gallery: [],
 }
 
 const ACCENT = '#15803d'
@@ -101,6 +102,29 @@ export default function ExampleGardenBloom({ data }) {
                   네이버 지도 (연동 예정)
                 </Box>
               </Box>
+              {!!w.gallery?.length && (
+                <Box>
+                  <TitleGarden>갤러리</TitleGarden>
+                  <Stack direction="row" spacing={1.25} mt={2} sx={{ overflowX: 'auto', pb: 0.5 }}>
+                    {w.gallery.slice(0, 6).map((src, index) => (
+                      <Box
+                        key={`${src.slice(0, 24)}-${index}`}
+                        component="img"
+                        src={src}
+                        alt={`gallery-${index + 1}`}
+                        sx={{
+                          width: 104,
+                          height: 104,
+                          flex: '0 0 auto',
+                          objectFit: 'cover',
+                          borderRadius: `${radii.md}px`,
+                          border: `1px solid ${palette.border}`,
+                        }}
+                      />
+                    ))}
+                  </Stack>
+                </Box>
+              )}
             </Stack>
           </CardContent>
         </Card>
@@ -115,8 +139,12 @@ export default function ExampleGardenBloom({ data }) {
 
 function mergeData(data) {
   if (!data) return DEFAULT_DATA
-  const merged = { ...DEFAULT_DATA }
+  const merged = { ...DEFAULT_DATA, gallery: [] }
   for (const key of Object.keys(DEFAULT_DATA)) {
+    if (key === 'gallery') {
+      if (Array.isArray(data.gallery) && data.gallery.length) merged.gallery = data.gallery
+      continue
+    }
     if (data[key]) merged[key] = data[key]
   }
   return merged

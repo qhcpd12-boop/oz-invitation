@@ -5,6 +5,7 @@ import LandingPage from "./pages/LandingPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
 import PricingPage from "./pages/PricingPage.jsx";
+import ReviewsPage from "./pages/ReviewsPage.jsx";
 import StyleGuide from "./pages/StyleGuide.jsx";
 import CreateLayout from "./pages/create/CreateLayout.jsx";
 import StepDesign from "./pages/create/StepDesign.jsx";
@@ -23,6 +24,7 @@ export default function App() {
       <Route element={<AppLayout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/reviews" element={<ReviewsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/dev/_styleguide" element={<StyleGuide />} />

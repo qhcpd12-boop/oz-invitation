@@ -10,7 +10,7 @@ const NAV = [
   { label: '홈', href: '/#top' },
   { label: '요금제', href: '/pricing' },
   { label: '디자인', href: '/create/design' },
-  { label: '후기', href: '/#testimonials' },
+  { label: '후기', href: '/reviews' },
   { label: '고객센터', href: '/#cs' },
 ]
 

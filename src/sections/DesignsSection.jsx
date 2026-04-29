@@ -25,9 +25,9 @@ export default function DesignsSection() {
           justifyContent: 'center',
         }}
       >
-        <PhoneMockup variant="luxury" />
-        <PhoneMockup variant="garden" />
-        <PhoneMockup variant="classic" venue="더 그랜드볼룸" />
+        <PhoneMockup variant="luxury" imgSrc="/wedding-luxury.png" />
+        <PhoneMockup variant="garden" imgSrc="/wedding-garden.png" />
+        <PhoneMockup variant="classic" imgSrc="/wedding-classic.png" venue="더 그랜드볼룸" />
       </Box>
 
       <Stack alignItems="center" mt={5}>

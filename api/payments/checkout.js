@@ -1,13 +1,13 @@
 import Stripe from 'stripe'
 import { getAdminDb } from '../_lib/firebaseAdmin.js'
-import { resolvePlan } from '../_lib/plans.js'
+import { resolveTemplate } from '../_lib/templates.js'
 
 /**
  * POST /api/payments/checkout
- *  body: { invitationId, plan }
+ *  body: { invitationId?, templateId, name, phoneNumber }
  *  res:  { url }   // Stripe Checkout 결제 페이지 URL
  *
- * 서버는 결제 금액과 invitationId 를 신뢰 가능한 형태로 결정하고
+ * 서버는 templateId 기준으로 결제 금액을 권위적으로 결정하고
  * orders/{orderId} 를 'pending' 으로 생성한 뒤 Stripe 세션을 만든다.
  */
 export default async function handler(req, res) {
@@ -18,35 +18,58 @@ export default async function handler(req, res) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
-    const { invitationId, plan: planId } = body
-    if (!invitationId || !planId) {
-      return res.status(400).json({ error: 'invitationId & plan required' })
+    const {
+      invitationId,
+      templateId,
+      name,
+      phoneNumber,
+    } = body
+
+    const buyerName = String(name || '').trim()
+    const buyerPhone = normalizePhone(phoneNumber)
+
+    if (!templateId || !buyerName || buyerPhone.length < 10) {
+      return res.status(400).json({ error: 'templateId, name, phoneNumber required' })
     }
-    const plan = resolvePlan(planId)
-    if (!plan) return res.status(400).json({ error: 'unknown plan' })
+    const template = resolveTemplate(templateId)
+    if (!template) return res.status(400).json({ error: 'unknown templateId' })
 
     const stripeSecret = process.env.STRIPE_SECRET_KEY
     if (!stripeSecret) return res.status(500).json({ error: 'STRIPE_SECRET_KEY not configured' })
 
     const db = getAdminDb()
-    const invSnap = await db.collection('invitations').doc(invitationId).get()
-    if (!invSnap.exists) return res.status(404).json({ error: 'invitation not found' })
-    const invitation = invSnap.data()
+    let resolvedInvitationId = invitationId || null
+    if (invitationId) {
+      const invSnap = await db.collection('invitations').doc(invitationId).get()
+      if (!invSnap.exists) return res.status(404).json({ error: 'invitation not found' })
+    }
 
     const orderRef = await db.collection('orders').add({
-      invitationId,
-      ownerId: invitation.ownerId,
-      plan: planId,
-      amount: plan.amount,
-      currency: plan.currency,
+      invitationId: resolvedInvitationId,
+      templateId,
+      templateName: template.name,
+      buyerName,
+      buyerPhone,
+      amount: template.amount,
+      currency: template.currency,
+      discount: 0,
+      finalAmount: template.amount,
       status: 'pending',
       createdAt: new Date(),
     })
 
-    await db.collection('invitations').doc(invitationId).set(
-      { status: 'awaiting_payment', plan: planId, lastOrderId: orderRef.id },
-      { merge: true },
-    )
+    if (resolvedInvitationId) {
+      await db.collection('invitations').doc(resolvedInvitationId).set(
+        {
+          templateId,
+          buyerName,
+          buyerPhone,
+          status: 'awaiting_payment',
+          lastOrderId: orderRef.id,
+        },
+        { merge: true },
+      )
+    }
 
     const baseUrl = process.env.PUBLIC_BASE_URL || `https://${req.headers.host}`
     const stripe = new Stripe(stripeSecret)
@@ -55,19 +78,21 @@ export default async function handler(req, res) {
       line_items: [
         {
           price_data: {
-            currency: plan.currency,
-            product_data: { name: plan.name },
-            unit_amount: plan.amount,
+            currency: template.currency,
+            product_data: { name: `오즈청첩장 — ${template.name}` },
+            unit_amount: template.amount,
           },
           quantity: 1,
         },
       ],
       success_url: `${baseUrl}/create/complete?orderId=${orderRef.id}`,
-      cancel_url: `${baseUrl}/create/checkout?plan=${planId}&canceled=1`,
+      cancel_url: `${baseUrl}/create/checkout?canceled=1`,
       metadata: {
-        invitationId,
+        invitationId: resolvedInvitationId || '',
         orderId: orderRef.id,
-        plan: planId,
+        templateId,
+        buyerName,
+        buyerPhone,
       },
     })
 
@@ -78,4 +103,8 @@ export default async function handler(req, res) {
     console.error('[checkout] error', e)
     return res.status(500).json({ error: e.message })
   }
+}
+
+function normalizePhone(value) {
+  return String(value || '').replace(/\D+/g, '')
 }

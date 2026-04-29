@@ -1,11 +1,9 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
-import { getAuth, browserLocalPersistence, setPersistence } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 /**
  * Firebase 클라이언트 초기화.
  * 환경변수가 비어 있으면 init하지 않고 에러를 throw 한다.
- *  → AuthProvider 가 catch 해서 비로그인 상태로 동작.
  */
 const cfg = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,7 +15,6 @@ const cfg = {
 }
 
 let _app = null
-let _auth = null
 let _db = null
 
 function ensureInit() {
@@ -28,19 +25,12 @@ function ensureInit() {
     )
   }
   _app = getApps().length ? getApp() : initializeApp(cfg)
-  _auth = getAuth(_app)
-  setPersistence(_auth, browserLocalPersistence).catch(() => {})
   _db = getFirestore(_app)
 }
 
 export function getFirebaseApp() {
   ensureInit()
   return _app
-}
-
-export function getFirebaseAuth() {
-  ensureInit()
-  return _auth
 }
 
 export function getDb() {

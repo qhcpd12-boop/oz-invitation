@@ -2,8 +2,8 @@ import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
 import { fontFamily, radii, shadows } from '../../theme/index.js'
 import { formatKoreanDate } from '../../lib/invitations/formatWeddingDate.js'
 
-/** 청첩장 예시 1 — 럭셔리 누아르(다크 + 골드) */
-const WEDDING = {
+/** 청첩장 예시 1 — 럭셔리 누아르(다크 + 골드). props 기반 (빈 값이면 기본 데이터) */
+const DEFAULT_DATA = {
   groom: '박서준',
   bride: '최유진',
   date: '2026-09-12',
@@ -18,8 +18,9 @@ const GOLD = '#E5C088'
 const BG = '#0D0D0D'
 const CARD = '#141414'
 
-export default function ExampleLuxuryNoir() {
-  const dateStr = formatKoreanDate(WEDDING.date, WEDDING.time)
+export default function ExampleLuxuryNoir({ data }) {
+  const w = mergeData(data)
+  const dateStr = formatKoreanDate(w.date, w.time)
 
   return (
     <Box sx={{ minHeight: '100vh', background: BG, py: 4, px: 2 }}>
@@ -41,13 +42,13 @@ export default function ExampleLuxuryNoir() {
               WEDDING
             </Typography>
             <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 34, fontWeight: 700, color: '#fff', mt: 2 }}>
-              {WEDDING.groom}
+              {w.groom}
             </Typography>
             <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 22, color: GOLD, my: 1.5 }}>
               &
             </Typography>
             <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 34, fontWeight: 700, color: '#fff' }}>
-              {WEDDING.bride}
+              {w.bride}
             </Typography>
             <Box sx={{ width: 48, height: 1, background: GOLD, opacity: 0.5, mx: 'auto', my: 3 }} />
             <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.75)', letterSpacing: '0.02em' }}>
@@ -60,15 +61,15 @@ export default function ExampleLuxuryNoir() {
               <Box>
                 <TitleLuxury>인사말</TitleLuxury>
                 <Typography sx={{ whiteSpace: 'pre-line', textAlign: 'center', mt: 2, color: 'rgba(255,255,255,0.85)', lineHeight: 1.85 }}>
-                  {WEDDING.greeting}
+                  {w.greeting}
                 </Typography>
               </Box>
               <Box>
                 <TitleLuxury>예식 안내</TitleLuxury>
                 <Stack spacing={1.5} mt={2}>
                   <RowLuxury label="일시" value={dateStr} />
-                  <RowLuxury label="장소" value={WEDDING.venue} />
-                  <RowLuxury label="주소" value={WEDDING.address} />
+                  <RowLuxury label="장소" value={w.venue} />
+                  <RowLuxury label="주소" value={w.address} />
                 </Stack>
               </Box>
               <Box>
@@ -98,6 +99,15 @@ export default function ExampleLuxuryNoir() {
       </Box>
     </Box>
   )
+}
+
+function mergeData(data) {
+  if (!data) return DEFAULT_DATA
+  const merged = { ...DEFAULT_DATA }
+  for (const key of Object.keys(DEFAULT_DATA)) {
+    if (data[key]) merged[key] = data[key]
+  }
+  return merged
 }
 
 function TitleLuxury({ children }) {

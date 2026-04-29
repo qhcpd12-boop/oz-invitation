@@ -2,8 +2,8 @@ import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
 import { palette, fontFamily, radii, shadows } from '../../theme/index.js'
 import { formatKoreanDate } from '../../lib/invitations/formatWeddingDate.js'
 
-/** 청첩장 예시 2 — 가든 블룸(연그린 + 플로럴 톤) */
-const WEDDING = {
+/** 청첩장 예시 2 — 가든 블룸(연그린 + 플로럴 톤). props 기반 */
+const DEFAULT_DATA = {
   groom: '이도현',
   bride: '한소희',
   date: '2026-06-07',
@@ -17,8 +17,9 @@ const WEDDING = {
 const ACCENT = '#15803d'
 const SOFT = '#DCFCE7'
 
-export default function ExampleGardenBloom() {
-  const dateStr = formatKoreanDate(WEDDING.date, WEDDING.time)
+export default function ExampleGardenBloom({ data }) {
+  const w = mergeData(data)
+  const dateStr = formatKoreanDate(w.date, w.time)
 
   return (
     <Box
@@ -53,13 +54,13 @@ export default function ExampleGardenBloom() {
               GARDEN WEDDING
             </Typography>
             <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 32, fontWeight: 700, color: palette.textPrimary, mt: 2 }}>
-              {WEDDING.groom}
+              {w.groom}
             </Typography>
             <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 22, color: ACCENT, my: 1 }}>
               &
             </Typography>
             <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 32, fontWeight: 700, color: palette.textPrimary }}>
-              {WEDDING.bride}
+              {w.bride}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>
               {dateStr}
@@ -71,15 +72,15 @@ export default function ExampleGardenBloom() {
               <Box>
                 <TitleGarden>인사말</TitleGarden>
                 <Typography sx={{ whiteSpace: 'pre-line', textAlign: 'center', mt: 2, color: palette.textMuted, lineHeight: 1.85 }}>
-                  {WEDDING.greeting}
+                  {w.greeting}
                 </Typography>
               </Box>
               <Box>
                 <TitleGarden>예식 안내</TitleGarden>
                 <Stack spacing={1.5} mt={2}>
                   <RowGarden label="일시" value={dateStr} />
-                  <RowGarden label="장소" value={WEDDING.venue} />
-                  <RowGarden label="주소" value={WEDDING.address} />
+                  <RowGarden label="장소" value={w.venue} />
+                  <RowGarden label="주소" value={w.address} />
                 </Stack>
               </Box>
               <Box>
@@ -110,6 +111,15 @@ export default function ExampleGardenBloom() {
       </Box>
     </Box>
   )
+}
+
+function mergeData(data) {
+  if (!data) return DEFAULT_DATA
+  const merged = { ...DEFAULT_DATA }
+  for (const key of Object.keys(DEFAULT_DATA)) {
+    if (data[key]) merged[key] = data[key]
+  }
+  return merged
 }
 
 function TitleGarden({ children }) {

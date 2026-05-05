@@ -25,6 +25,18 @@ const PRESET = {
     accent: palette.primary,
     label: '클래식 디자인',
   },
+  natural: {
+    bg: 'linear-gradient(165deg, #4a7c59 0%, #2d5a3d 50%, #1a3328 100%)',
+    color: '#fff',
+    accent: '#fff',
+    label: '내추럴 포토',
+  },
+  vintage: {
+    bg: '#f5f4f0',
+    color: '#1a1a1a',
+    accent: '#1a1a1a',
+    label: '빈티지 일러스트',
+  },
 }
 
 export default function PhoneMockup({

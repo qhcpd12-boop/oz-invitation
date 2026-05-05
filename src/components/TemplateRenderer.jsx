@@ -1,5 +1,7 @@
 import ExampleLuxuryNoir from '../pages/examples/ExampleLuxuryNoir.jsx'
 import ExampleGardenBloom from '../pages/examples/ExampleGardenBloom.jsx'
+import ExampleModernNatural from '../pages/examples/ExampleModernNatural.jsx'
+import ExampleVintageIllust from '../pages/examples/ExampleVintageIllust.jsx'
 import { getTemplateById } from '../lib/invitations/templates.js'
 
 /**
@@ -19,6 +21,10 @@ export default function TemplateRenderer({ templateId, data }) {
   switch (mockup) {
     case 'garden':
       return <ExampleGardenBloom data={data} />
+    case 'natural':
+      return <ExampleModernNatural data={data} />
+    case 'vintage':
+      return <ExampleVintageIllust data={data} />
     case 'luxury':
     case 'classic':
     default:

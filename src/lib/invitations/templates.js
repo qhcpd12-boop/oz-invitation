@@ -51,6 +51,22 @@ export const TEMPLATES = [
     mockup: 'luxury',
     price: UNIFORM_PRICE,
   },
+  {
+    id: 'modern-natural',
+    name: '모던 내추럴',
+    style: '사진·내추럴 화이트',
+    mockup: 'natural',
+    badge: 'NEW',
+    price: UNIFORM_PRICE,
+  },
+  {
+    id: 'vintage-illust',
+    name: '빈티지 일러스트',
+    style: '화이트·빈티지 라인아트',
+    mockup: 'vintage',
+    badge: 'NEW',
+    price: UNIFORM_PRICE,
+  },
 ]
 
 export function getTemplateById(id) {

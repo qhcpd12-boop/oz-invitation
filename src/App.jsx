@@ -12,7 +12,11 @@ import StepComplete from "./pages/create/StepComplete.jsx";
 import PublicInvitation from "./pages/PublicInvitation.jsx";
 import OrdersLookupPage from "./pages/OrdersLookupPage.jsx";
 import ExampleLuxuryNoir from "./pages/examples/ExampleLuxuryNoir.jsx";
+import ExampleRomanticRose from "./pages/examples/ExampleRomanticRose.jsx";
 import ExampleGardenBloom from "./pages/examples/ExampleGardenBloom.jsx";
+import ExampleModernMinimal from "./pages/examples/ExampleModernMinimal.jsx";
+import ExampleClassicLetter from "./pages/examples/ExampleClassicLetter.jsx";
+import ExampleMidnightBlue from "./pages/examples/ExampleMidnightBlue.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
 export default function App() {
@@ -40,7 +44,11 @@ export default function App() {
 
       {/* 청첩장 예시(정적 데모) — App.tsx 없음, 라우트는 App.jsx */}
       <Route path="/examples/luxury-noir" element={<ExampleLuxuryNoir />} />
+      <Route path="/examples/romantic-rose" element={<ExampleRomanticRose />} />
       <Route path="/examples/garden-bloom" element={<ExampleGardenBloom />} />
+      <Route path="/examples/modern-minimal" element={<ExampleModernMinimal />} />
+      <Route path="/examples/classic-letter" element={<ExampleClassicLetter />} />
+      <Route path="/examples/midnight-blue" element={<ExampleMidnightBlue />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

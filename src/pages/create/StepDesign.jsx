@@ -58,7 +58,7 @@ export default function StepDesign() {
                     minHeight: 360,
                   }}
                 >
-                  <PhoneMockup variant={t.mockup} width={170} />
+                  <PhoneMockup variant={t.mockup} label={t.name} width={170} />
                 </Box>
                 <CardContent>
                   <Stack spacing={2}>

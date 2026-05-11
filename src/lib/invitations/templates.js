@@ -26,7 +26,7 @@ export const TEMPLATES = [
     id: 'modern-minimal',
     name: '모던 미니멀',
     style: '화이트·블랙 타이포',
-    mockup: 'classic',
+    mockup: 'minimal',
     price: UNIFORM_PRICE,
   },
   {
@@ -41,14 +41,14 @@ export const TEMPLATES = [
     id: 'classic-letter',
     name: '클래식 편지',
     style: '아이보리·세리프',
-    mockup: 'classic',
+    mockup: 'letter',
     price: UNIFORM_PRICE,
   },
   {
     id: 'midnight-blue',
     name: '미드나잇 블루',
     style: '딥블루·실버',
-    mockup: 'luxury',
+    mockup: 'midnight',
     price: UNIFORM_PRICE,
   },
   {

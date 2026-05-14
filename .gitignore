@@ -9,3 +9,14 @@ dist-ssr
 *.log
 
 .env
+.env*.local
+
+# tool caches
+.omc/
+.omx/
+public/.omc/
+public/.agents/
+public/skills-lock.json
+
+# uncategorized ChatGPT image dumps (use public/templates/* instead)
+public/ChatGPT*

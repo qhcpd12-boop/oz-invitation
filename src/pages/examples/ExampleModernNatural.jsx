@@ -1,6 +1,7 @@
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
 import { fontFamily, radii, shadows } from '../../theme/index.js'
 import { formatKoreanDate } from '../../lib/invitations/formatWeddingDate.js'
+import TemplateCoverImage from '../../components/TemplateCoverImage.jsx'
 
 const DEFAULT_DATA = {
   groom: '김민준',
@@ -11,6 +12,11 @@ const DEFAULT_DATA = {
   address: '서울시 강남구 테헤란로 123',
   greeting:
     '서로 다른 길을 걸어오다 같은 방향을 바라보게 되었습니다.\n평생을 함께 걷고 싶은 사람과 영원을 약속하고자 합니다.\n저희의 새로운 여정을 함께 축복해 주세요.',
+  coverImage: '',
+  greetingTitle: '소중한 분들을 초대합니다',
+  greetingImage: '',
+  endingImage: '',
+  endingMessage: '',
   gallery: [],
 }
 
@@ -66,6 +72,15 @@ export default function ExampleModernNatural({ data }) {
             MARRIAGE
           </Typography>
 
+          <TemplateCoverImage
+            src={w.coverImage}
+            sx={{
+              my: 3,
+              border: '1px solid rgba(255,255,255,0.38)',
+              boxShadow: '0 18px 34px rgba(0,0,0,0.26)',
+            }}
+          />
+
           <Box sx={{ textAlign: 'center' }}>
             <Typography sx={{ color: 'rgba(255,255,255,0.95)', fontSize: 15, mb: 0.75 }}>
               {dateStr}
@@ -101,6 +116,7 @@ export default function ExampleModernNatural({ data }) {
                 <Typography sx={{ whiteSpace: 'pre-line', color: '#666', lineHeight: 2, fontSize: 14 }}>
                   {w.greeting}
                 </Typography>
+                <TemplateCoverImage src={w.greetingImage} alt="인사말 사진" aspectRatio="4 / 3" sx={{ mt: 3 }} />
               </Box>
 
               <Box>
@@ -153,6 +169,14 @@ export default function ExampleModernNatural({ data }) {
                   </Stack>
                 </Box>
               )}
+              {(w.endingImage || w.endingMessage) && (
+                <Box sx={{ textAlign: 'center' }}>
+                  <TemplateCoverImage src={w.endingImage} alt="엔딩 사진" aspectRatio="4 / 3" sx={{ mb: 2.5 }} />
+                  <Typography sx={{ whiteSpace: 'pre-line', color: '#666', lineHeight: 1.9 }}>
+                    {w.endingMessage}
+                  </Typography>
+                </Box>
+              )}
             </Stack>
           </CardContent>
         </Card>
@@ -161,7 +185,7 @@ export default function ExampleModernNatural({ data }) {
           variant="caption"
           sx={{ display: 'block', textAlign: 'center', mt: 3, color: '#aaa' }}
         >
-          예시 템플릿 · 모던 내추럴 · 오즈청첩장
+          예시 디자인 · 모던 내추럴 · 오즈청첩장
         </Typography>
       </Box>
     </Box>

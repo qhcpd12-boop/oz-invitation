@@ -84,7 +84,7 @@ export default function StyleGuide() {
           </Typography>
           <Typography variant="caption">Caption — 13px 캡션</Typography>
           <GradientText sx={{ fontFamily: 'serif', fontSize: 48, fontWeight: 700 }}>
-            20,000+
+            OZ Invitation
           </GradientText>
         </Stack>
       </SectionContainer>
@@ -113,10 +113,10 @@ export default function StyleGuide() {
         </Typography>
         <Grid container spacing={3}>
           {[
-            ['20,000+', '제작된 청첩장'],
-            ['4.9', '평균 고객 만족도'],
-            ['98%', '재이용 추천율'],
-            ['3분', '평균 제작 시간'],
+            ['사진 업로드', '두 사람의 분위기가 담긴 사진으로 시작해요'],
+            ['디자인 선택', '원하는 무드의 디자인을 고를 수 있어요'],
+            ['정보 입력', '예식 일시와 장소를 깔끔하게 정리해요'],
+            ['링크 공유', '완성된 청첩장을 간편하게 전달해요'],
           ].map(([v, l]) => (
             <Grid key={l} item xs={6} md={3}>
               <StatBlock value={v} label={l} />
@@ -129,7 +129,7 @@ export default function StyleGuide() {
             <FeatureCard
               icon="🎨"
               title="프리미엄 디자인"
-              description={'트렌디한 10가지 이상의 디자인 템플릿으로\n나만의 개성 있는 청첩장을 완성하세요.'}
+              description={'트렌디한 10가지 이상의 디자인으로\n나만의 개성 있는 청첩장을 완성하세요.'}
               tone="rose"
             />
           </Grid>
@@ -195,7 +195,7 @@ export default function StyleGuide() {
               tagline="가성비 초점 · 깔끔하게"
               price="9,900"
               period="예식일 기준 1개월 (총 2~3개월 유지)"
-              features={['기본 디자인 템플릿 5종', '사진 갤러리 (최대 15장)', '텍스트 방명록', '카카오톡 공유']}
+              features={['기본 디자인 5종', '사진 갤러리 (최대 15장)', '텍스트 방명록', '카카오톡 공유']}
               ctaLabel="라이트 시작하기"
             />
           </Grid>
@@ -205,7 +205,7 @@ export default function StyleGuide() {
               tagline="핵심 기능 · 베스트셀러"
               price="19,900"
               period="예식일 기준 3개월 (총 5~6개월 유지)"
-              features={['전체 프리미엄 템플릿', '사진 갤러리 (최대 30장)', '🎤 하객 음성 축하 메시지']}
+              features={['전체 프리미엄 디자인', '사진 갤러리 (최대 30장)', '🎤 하객 음성 축하 메시지']}
               bonus={{ title: '📥 식후 다운로드 (ZIP 패키지)', body: '갤러리·방명록·음성 MP3\n무료 다운로드 14일' }}
               badge="🔥 BEST"
               highlight
@@ -238,7 +238,7 @@ export default function StyleGuide() {
           ]}
           rows={[
             { label: '이용 기간', values: { light: '2~3개월', standard: '5~6개월', premium: '6개월+' } },
-            { label: '디자인 템플릿', values: { light: '기본 5종', standard: '전체', premium: '전체' } },
+            { label: '디자인', values: { light: '기본 5종', standard: '전체', premium: '전체' } },
             { label: '사진 갤러리', values: { light: '15장', standard: '30장', premium: '무제한' } },
             { label: '음성 축하 메시지', values: { light: false, standard: true, premium: true } },
             { label: '동영상 첨부', values: { light: false, standard: false, premium: true } },

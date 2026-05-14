@@ -1,6 +1,7 @@
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
 import { radii, shadows } from '../../theme/index.js'
 import { formatKoreanDate } from '../../lib/invitations/formatWeddingDate.js'
+import TemplateCoverImage from '../../components/TemplateCoverImage.jsx'
 
 const DEFAULT_DATA = {
   groom: '박지원',
@@ -11,6 +12,11 @@ const DEFAULT_DATA = {
   address: '서울시 강남구 청담동 123',
   greeting:
     '서로의 삶에 따뜻한 동반자가 되어\n사랑과 신뢰로 한 가정을 이루려 합니다.\n저희의 시작을 축복해 주세요.',
+  coverImage: '',
+  greetingTitle: '소중한 분들을 초대합니다',
+  greetingImage: '',
+  endingImage: '',
+  endingMessage: '',
   gallery: [],
 }
 
@@ -116,7 +122,19 @@ export default function ExampleVintageIllust({ data }) {
               LET LOVE<br />BLOOM
             </Typography>
 
-            <CarriageIllust />
+            {w.coverImage ? (
+              <TemplateCoverImage
+                src={w.coverImage}
+                sx={{
+                  my: 3,
+                  borderRadius: `${radii.sm}px`,
+                  border: '1px solid #1a1a1a',
+                  filter: 'grayscale(0.18)',
+                }}
+              />
+            ) : (
+              <CarriageIllust />
+            )}
 
             <Box
               sx={{
@@ -182,6 +200,7 @@ export default function ExampleVintageIllust({ data }) {
                 >
                   {w.greeting}
                 </Typography>
+                <TemplateCoverImage src={w.greetingImage} alt="인사말 사진" aspectRatio="4 / 3" sx={{ mt: 3, borderRadius: `${radii.sm}px`, border: '1px solid #bbb' }} />
               </Box>
 
               <Box>
@@ -234,6 +253,14 @@ export default function ExampleVintageIllust({ data }) {
                   </Stack>
                 </Box>
               )}
+              {(w.endingImage || w.endingMessage) && (
+                <Box sx={{ textAlign: 'center' }}>
+                  <TemplateCoverImage src={w.endingImage} alt="엔딩 사진" aspectRatio="4 / 3" sx={{ mb: 2.5, borderRadius: `${radii.sm}px`, border: '1px solid #bbb' }} />
+                  <Typography sx={{ whiteSpace: 'pre-line', color: '#555', lineHeight: 1.9 }}>
+                    {w.endingMessage}
+                  </Typography>
+                </Box>
+              )}
             </Stack>
           </CardContent>
         </Card>
@@ -242,7 +269,7 @@ export default function ExampleVintageIllust({ data }) {
           variant="caption"
           sx={{ display: 'block', textAlign: 'center', mt: 3, color: '#aaa' }}
         >
-          예시 템플릿 · 빈티지 일러스트 · 오즈청첩장
+          예시 디자인 · 빈티지 일러스트 · 오즈청첩장
         </Typography>
       </Box>
     </Box>

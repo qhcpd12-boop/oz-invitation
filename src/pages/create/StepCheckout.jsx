@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import {
   Alert,
+  Box,
   Card,
   CardContent,
   Divider,
@@ -9,18 +10,30 @@ import {
   Typography,
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import CreditCardRoundedIcon from '@mui/icons-material/CreditCardRounded'
 import PillButton from '../../components/PillButton.jsx'
 import { useDraft } from './draftContext.js'
 import { getTemplateById, UNIFORM_PRICE } from '../../lib/invitations/templates.js'
 import { palette } from '../../theme/index.js'
+
+const PAID_DRAFT_SESSION_KEY = 'oz-invitation:last-paid-draft'
 
 export default function StepCheckout() {
   const navigate = useNavigate()
   const { invitation, patch, flush } = useDraft()
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
-  const [name, setName] = useState(invitation?.buyerName || '')
-  const [phone, setPhone] = useState(formatPhone(invitation?.buyerPhone || ''))
+  const [name, setName] = useState(
+    invitation?.buyerName || invitation?.wedding?.groom || invitation?.wedding?.bride || '',
+  )
+  const [phone, setPhone] = useState(
+    formatPhone(
+      invitation?.buyerPhone ||
+        invitation?.wedding?.contactGroom ||
+        invitation?.wedding?.contactBride ||
+        '',
+    ),
+  )
 
   const template = useMemo(
     () => getTemplateById(invitation?.templateId || ''),
@@ -30,20 +43,24 @@ export default function StepCheckout() {
   const discount = 0
   const finalPrice = Math.max(0, originalPrice - discount)
   const normalizedPhone = normalizePhone(phone)
-  const canPay = !!name.trim() && normalizedPhone.length >= 10 && !!template?.id
+  const canPay =
+    !!name.trim() &&
+    normalizedPhone.length >= 10 &&
+    !!template?.id
 
   /**
-   * 기본은 mock 결제, 배포 시 환경변수로 실결제 경로를 켠다.
+   * 발표용 MVP에서는 실결제 환경변수가 없으면 완료 흐름만 처리한다.
    * VITE_ENABLE_PG=1 && production 일 때만 checkout API 호출.
    */
   const onPay = async () => {
     if (!canPay) return
     setSubmitting(true)
     setSubmitError('')
-    patch({
+    const paymentPatch = {
       buyerName: name.trim(),
       buyerPhone: normalizedPhone,
-    })
+    }
+    patch(paymentPatch)
     await flush()
     try {
       if (shouldUseRealCheckout()) {
@@ -68,7 +85,19 @@ export default function StepCheckout() {
       }
 
       await new Promise((r) => setTimeout(r, 450))
-      patch({ status: 'paid', step: 3 })
+      const paidDraft = {
+        ...invitation,
+        ...paymentPatch,
+        status: 'paid',
+        step: 3,
+        paidAt: new Date().toISOString(),
+      }
+      try {
+        window.sessionStorage.setItem(PAID_DRAFT_SESSION_KEY, JSON.stringify(paidDraft))
+      } catch {
+        /* 세션 저장소를 사용할 수 없어도 결제 흐름은 계속 진행 */
+      }
+      patch(paidDraft)
       navigate('/create/complete')
     } catch (e) {
       setSubmitError(e.message || '결제 요청 중 오류가 발생했습니다.')
@@ -79,15 +108,35 @@ export default function StepCheckout() {
   }
 
   return (
-    <Stack spacing={3}>
-      <Typography color="text.secondary">
-        결제 정보를 확인해 주세요. 성함과 휴대폰번호는 이후 주문 조회에 사용됩니다.
-      </Typography>
-
-      <Card>
-        <CardContent>
+    <Stack spacing={2.5} sx={{ maxWidth: 720, mx: 'auto' }}>
+      <Card sx={{ borderRadius: 4, overflow: 'hidden' }}>
+        <CardContent sx={{ p: { xs: 2.5, sm: 4 } }}>
           <Stack spacing={2.25}>
-            <Typography variant="h5">결제 정보</Typography>
+            <Stack spacing={1.2} alignItems="center" textAlign="center">
+              <Box
+                sx={{
+                  width: 54,
+                  height: 54,
+                  borderRadius: '50%',
+                  display: 'grid',
+                  placeItems: 'center',
+                  color: '#fff',
+                  background:
+                    'linear-gradient(135deg, rgba(251,113,133,1) 0%, rgba(219,39,119,1) 100%)',
+                  boxShadow: '0 14px 30px rgba(225,29,72,0.22)',
+                }}
+              >
+                <CreditCardRoundedIcon sx={{ fontSize: 30 }} />
+              </Box>
+              <Typography sx={{ fontSize: { xs: 25, md: 30 }, fontWeight: 900, letterSpacing: '-0.04em' }}>
+                청첩장 결제하기
+              </Typography>
+              <Typography sx={{ color: palette.textMuted, fontSize: { xs: 14, md: 15 }, lineHeight: 1.7 }}>
+                결제가 완료되면 하객에게 공유할 수 있는 모바일 청첩장 링크가 바로 발급됩니다.
+              </Typography>
+            </Stack>
+
+            <Divider />
 
             <PaymentRow label="성함">
               <TextField
@@ -105,9 +154,6 @@ export default function StepCheckout() {
                 placeholder="010-1234-5678"
               />
             </PaymentRow>
-            <Divider />
-
-            <PaymentRow label="템플릿명" value={template?.name || '미선택'} />
             <Divider />
 
             <PaymentRow label="정가" value={toWon(originalPrice)} />
@@ -134,7 +180,7 @@ export default function StepCheckout() {
 
       {!canPay && (
         <Typography variant="caption" sx={{ color: palette.textMuted }}>
-          결제를 진행하려면 템플릿 선택 후 성함과 휴대폰번호를 입력해 주세요.
+          결제를 진행하려면 디자인 선택 후 성함과 휴대폰번호를 입력해 주세요.
         </Typography>
       )}
     </Stack>

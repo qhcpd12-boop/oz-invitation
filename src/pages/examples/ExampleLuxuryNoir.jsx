@@ -1,6 +1,7 @@
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
 import { radii, shadows } from '../../theme/index.js'
 import { formatKoreanDate } from '../../lib/invitations/formatWeddingDate.js'
+import TemplateCoverImage from '../../components/TemplateCoverImage.jsx'
 
 /** 청첩장 예시 — 럭셔리 누아르(다크 + 골드, 5성급 호텔 인비테이션 톤). props 기반 */
 const DEFAULT_DATA = {
@@ -12,6 +13,11 @@ const DEFAULT_DATA = {
   address: '서울시 용산구 소월로 322',
   greeting:
     '저희 두 사람이 사랑으로 하나가 되는 자리에\n소중한 분들을 초대합니다.\n따뜻한 축복으로 함께해 주시면 감사하겠습니다.',
+  coverImage: '',
+  greetingTitle: '소중한 분들을 초대합니다',
+  greetingImage: '',
+  endingImage: '',
+  endingMessage: '',
   gallery: [],
 }
 
@@ -297,6 +303,15 @@ export default function ExampleLuxuryNoir({ data }) {
               </Typography>
 
               <DDayBadge targetDate={w.date} />
+              <TemplateCoverImage
+                src={w.coverImage}
+                sx={{
+                  mt: 3.5,
+                  borderRadius: `${radii.sm}px`,
+                  border: `1px solid ${GOLD}44`,
+                  boxShadow: '0 18px 34px rgba(0,0,0,0.28)',
+                }}
+              />
             </Box>
           </Box>
 
@@ -317,6 +332,7 @@ export default function ExampleLuxuryNoir({ data }) {
                 >
                   {w.greeting}
                 </Typography>
+                <TemplateCoverImage src={w.greetingImage} alt="인사말 사진" aspectRatio="4 / 3" sx={{ mt: 3, borderRadius: `${radii.sm}px`, border: `1px solid ${GOLD}44` }} />
                 <Typography
                   sx={{
                     mt: 3,
@@ -423,7 +439,13 @@ export default function ExampleLuxuryNoir({ data }) {
 
               {/* 푸터 */}
               <Box sx={{ textAlign: 'center', pt: 1 }}>
+                <TemplateCoverImage src={w.endingImage} alt="엔딩 사진" aspectRatio="4 / 3" sx={{ mb: 3, borderRadius: `${radii.sm}px`, border: `1px solid ${GOLD}44` }} />
                 <GoldDivider width={120} />
+                {w.endingMessage && (
+                  <Typography sx={{ whiteSpace: 'pre-line', color: INK, fontSize: 14, lineHeight: 1.9, mb: 2 }}>
+                    {w.endingMessage}
+                  </Typography>
+                )}
                 <Typography
                   sx={{
                     fontFamily: SERIF,
@@ -463,7 +485,7 @@ export default function ExampleLuxuryNoir({ data }) {
             letterSpacing: '0.18em',
           }}
         >
-          예시 템플릿 · 럭셔리 누아르 · 오즈청첩장
+          예시 디자인 · 럭셔리 누아르 · 오즈청첩장
         </Typography>
       </Box>
     </Box>

@@ -1,6 +1,7 @@
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
 import { radii, shadows } from '../../theme/index.js'
 import { formatKoreanDate } from '../../lib/invitations/formatWeddingDate.js'
+import TemplateCoverImage from '../../components/TemplateCoverImage.jsx'
 
 /** 청첩장 예시 — 클래식 편지(아이보리·세리프, 봉투/편지 메타포). props 기반 */
 const DEFAULT_DATA = {
@@ -12,6 +13,11 @@ const DEFAULT_DATA = {
   address: '서울시 중구 동호로 249',
   greeting:
     '오랜 시간 함께 걸어온 두 사람이\n이제 한 길을 걷고자 합니다.\n새로 쓰일 이 편지의 첫 장에\n귀한 걸음으로 와 주세요.',
+  coverImage: '',
+  greetingTitle: '소중한 분들을 초대합니다',
+  greetingImage: '',
+  endingImage: '',
+  endingMessage: '',
   gallery: [],
 }
 
@@ -188,6 +194,15 @@ export default function ExampleClassicLetter({ data }) {
             <Typography sx={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 13, color: BROWN, letterSpacing: '0.22em', mt: 0.5 }}>
               {englishDate}
             </Typography>
+            <TemplateCoverImage
+              src={w.coverImage}
+              sx={{
+                mt: 3.5,
+                borderRadius: `${radii.sm}px`,
+                border: `1px solid ${GOLD}88`,
+                boxShadow: '0 14px 28px rgba(58,46,34,0.12)',
+              }}
+            />
           </Box>
 
           <DashedDivider />
@@ -210,6 +225,7 @@ export default function ExampleClassicLetter({ data }) {
                 >
                   {w.greeting}
                 </Typography>
+                <TemplateCoverImage src={w.greetingImage} alt="인사말 사진" aspectRatio="4 / 3" sx={{ mt: 3, borderRadius: `${radii.sm}px`, border: `1px solid ${GOLD}88` }} />
                 <Typography
                   sx={{
                     mt: 2.5,
@@ -308,7 +324,13 @@ export default function ExampleClassicLetter({ data }) {
 
               {/* 푸터 */}
               <Box sx={{ textAlign: 'center', pt: 1 }}>
+                <TemplateCoverImage src={w.endingImage} alt="엔딩 사진" aspectRatio="4 / 3" sx={{ mb: 3, borderRadius: `${radii.sm}px`, border: `1px solid ${GOLD}88` }} />
                 <DashedDivider />
+                {w.endingMessage && (
+                  <Typography sx={{ whiteSpace: 'pre-line', fontFamily: KR_SERIF, color: INK, lineHeight: 2, mt: 2 }}>
+                    {w.endingMessage}
+                  </Typography>
+                )}
                 <Box sx={{ display: 'inline-flex', mt: 2 }}>
                   <Stamp />
                 </Box>
@@ -329,7 +351,7 @@ export default function ExampleClassicLetter({ data }) {
           variant="caption"
           sx={{ display: 'block', textAlign: 'center', mt: 3, color: MUTED, fontFamily: SCRIPT, fontSize: 18 }}
         >
-          예시 템플릿 · 클래식 편지 · 오즈청첩장
+          예시 디자인 · 클래식 편지 · 오즈청첩장
         </Typography>
       </Box>
     </Box>

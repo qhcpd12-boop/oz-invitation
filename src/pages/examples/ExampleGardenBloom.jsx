@@ -1,6 +1,7 @@
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
 import { palette, fontFamily, radii, shadows } from '../../theme/index.js'
 import { formatKoreanDate } from '../../lib/invitations/formatWeddingDate.js'
+import TemplateCoverImage from '../../components/TemplateCoverImage.jsx'
 
 /** 청첩장 예시 2 — 가든 블룸(연그린 + 플로럴 톤). props 기반 */
 const DEFAULT_DATA = {
@@ -12,6 +13,11 @@ const DEFAULT_DATA = {
   address: '서울시 송파구 올림픽로 300 롯데월드타워',
   greeting:
     '봄날의 햇살처럼 따뜻한 마음으로\n저희의 새로운 시작을 축복해 주시면 감사하겠습니다.\n소중한 걸음으로 함께해 주세요.',
+  coverImage: '',
+  greetingTitle: '소중한 분들을 초대합니다',
+  greetingImage: '',
+  endingImage: '',
+  endingMessage: '',
   gallery: [],
 }
 
@@ -66,6 +72,14 @@ export default function ExampleGardenBloom({ data }) {
             <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>
               {dateStr}
             </Typography>
+            <TemplateCoverImage
+              src={w.coverImage}
+              sx={{
+                mt: 3,
+                border: `1px solid ${ACCENT}22`,
+                boxShadow: '0 16px 34px rgba(21,128,61,0.14)',
+              }}
+            />
           </Box>
 
           <CardContent sx={{ p: 4, background: '#fff' }}>
@@ -75,6 +89,7 @@ export default function ExampleGardenBloom({ data }) {
                 <Typography sx={{ whiteSpace: 'pre-line', textAlign: 'center', mt: 2, color: palette.textMuted, lineHeight: 1.85 }}>
                   {w.greeting}
                 </Typography>
+                <TemplateCoverImage src={w.greetingImage} alt="인사말 사진" aspectRatio="4 / 3" sx={{ mt: 3, border: `1px solid ${palette.border}` }} />
               </Box>
               <Box>
                 <TitleGarden>예식 안내</TitleGarden>
@@ -125,12 +140,20 @@ export default function ExampleGardenBloom({ data }) {
                   </Stack>
                 </Box>
               )}
+              {(w.endingImage || w.endingMessage) && (
+                <Box sx={{ textAlign: 'center' }}>
+                  <TemplateCoverImage src={w.endingImage} alt="엔딩 사진" aspectRatio="4 / 3" sx={{ mb: 2.5, border: `1px solid ${palette.border}` }} />
+                  <Typography sx={{ whiteSpace: 'pre-line', color: palette.textMuted, lineHeight: 1.9 }}>
+                    {w.endingMessage}
+                  </Typography>
+                </Box>
+              )}
             </Stack>
           </CardContent>
         </Card>
 
         <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 3, color: palette.textMuted }}>
-          예시 템플릿 · 가든 블룸 · 오즈청첩장
+          예시 디자인 · 가든 블룸 · 오즈청첩장
         </Typography>
       </Box>
     </Box>

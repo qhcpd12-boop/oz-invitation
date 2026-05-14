@@ -147,6 +147,12 @@ export default function PhoneMockup({
         color: hasImage ? '#fff' : p.color,
         boxShadow: shadows.elevated,
         transform: `rotate(${rotate}deg)`,
+        transition:
+          'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease',
+        '&:hover': {
+          transform: `rotate(${rotate}deg) translateY(-6px)`,
+          boxShadow: '0 24px 64px rgba(0,0,0,0.22)',
+        },
         p: 2.5,
         display: 'flex',
         flexDirection: 'column',
@@ -172,13 +178,13 @@ export default function PhoneMockup({
           WEDDING
         </Typography>
 
-        <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 22, fontWeight: 700 }}>
+        <Typography sx={{ fontFamily: fontFamily.sans, fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em' }}>
           {groom}
         </Typography>
         <Typography sx={{ color: p.accent, fontFamily: fontFamily.serif, fontSize: 18 }}>
           &
         </Typography>
-        <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 22, fontWeight: 700 }}>
+        <Typography sx={{ fontFamily: fontFamily.sans, fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em' }}>
           {bride}
         </Typography>
         <Box sx={{ width: 40, height: 1, background: 'currentColor', opacity: 0.4, my: 1 }} />

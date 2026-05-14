@@ -10,7 +10,7 @@ export const PLANS = [
     priceLabel: '9,900',
     period: '예식일 기준 1개월 (총 2~3개월 유지)',
     features: [
-      '기본 디자인 템플릿 5종',
+      '기본 디자인 5종',
       '사진 갤러리 (최대 15장)',
       '텍스트 방명록',
       '네이버 지도 연동',
@@ -28,7 +28,7 @@ export const PLANS = [
     priceLabel: '19,900',
     period: '예식일 기준 3개월 (총 5~6개월 유지)',
     features: [
-      '전체 프리미엄 디자인 템플릿',
+      '전체 프리미엄 디자인',
       '사진 갤러리 (최대 30장)',
       '텍스트 방명록',
       '🎤 하객 음성 축하 메시지',
@@ -81,7 +81,7 @@ export const COMPARE_COLUMNS = [
 
 export const COMPARE_ROWS = [
   { label: '이용 기간', values: { light: '2~3개월', standard: '5~6개월', premium: '6개월+' } },
-  { label: '디자인 템플릿', values: { light: '기본 5종', standard: '전체 프리미엄', premium: '전체 프리미엄' } },
+  { label: '디자인', values: { light: '기본 5종', standard: '전체 프리미엄', premium: '전체 프리미엄' } },
   { label: '사진 갤러리', values: { light: '15장', standard: '30장', premium: '무제한' } },
   { label: '텍스트 방명록', values: { light: true, standard: true, premium: true } },
   { label: '음성 축하 메시지', values: { light: false, standard: true, premium: true } },

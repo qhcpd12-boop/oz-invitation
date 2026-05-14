@@ -11,7 +11,8 @@ export const TEMPLATES = [
     name: '럭셔리 누아르',
     style: '검정·골드',
     mockup: 'luxury',
-    badge: '인기',
+    previewImg: '/templates/sample-01.png',
+    summary: '깊은 조명과 고급스러운 분위기의 포토 중심 디자인',
     price: UNIFORM_PRICE,
   },
   {
@@ -19,7 +20,8 @@ export const TEMPLATES = [
     name: '로맨틱 로즈',
     style: '블러시·로즈골드',
     mockup: 'classic',
-    badge: 'BEST',
+    previewImg: '/templates/sample-02.png',
+    summary: '따뜻한 색감과 클래식한 웨딩 무드',
     price: UNIFORM_PRICE,
   },
   {
@@ -27,6 +29,8 @@ export const TEMPLATES = [
     name: '모던 미니멀',
     style: '화이트·블랙 타이포',
     mockup: 'minimal',
+    previewImg: '/templates/sample-03.png',
+    summary: '여백이 살아있는 깔끔한 초대장 구성',
     price: UNIFORM_PRICE,
   },
   {
@@ -34,7 +38,8 @@ export const TEMPLATES = [
     name: '가든 블룸',
     style: '플로럴·연그린',
     mockup: 'garden',
-    badge: 'NEW',
+    previewImg: '/templates/sample-04.png',
+    summary: '야외 사진과 잘 어울리는 싱그러운 분위기',
     price: UNIFORM_PRICE,
   },
   {
@@ -42,6 +47,8 @@ export const TEMPLATES = [
     name: '클래식 편지',
     style: '아이보리·세리프',
     mockup: 'letter',
+    previewImg: '/templates/sample-05.png',
+    summary: '단정한 인물 사진에 어울리는 편지형 디자인',
     price: UNIFORM_PRICE,
   },
   {
@@ -49,6 +56,8 @@ export const TEMPLATES = [
     name: '미드나잇 블루',
     style: '딥블루·실버',
     mockup: 'midnight',
+    previewImg: '/templates/sample-06.png',
+    summary: '흑백 또는 대비감 있는 사진에 어울리는 모던 톤',
     price: UNIFORM_PRICE,
   },
   {
@@ -56,7 +65,8 @@ export const TEMPLATES = [
     name: '모던 내추럴',
     style: '사진·내추럴 화이트',
     mockup: 'natural',
-    badge: 'NEW',
+    previewImg: '/templates/sample-07.png',
+    summary: '밝은 자연광 사진을 살리는 편안한 구성',
     price: UNIFORM_PRICE,
   },
   {
@@ -64,7 +74,8 @@ export const TEMPLATES = [
     name: '빈티지 일러스트',
     style: '화이트·빈티지 라인아트',
     mockup: 'vintage',
-    badge: 'NEW',
+    previewImg: '/templates/sample-01.png',
+    summary: '차분한 사진과 빈티지한 장식 요소가 어울리는 구성',
     price: UNIFORM_PRICE,
   },
 ]

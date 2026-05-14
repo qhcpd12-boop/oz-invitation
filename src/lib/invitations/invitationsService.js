@@ -15,19 +15,37 @@ import {
 import { getDb } from '../firebase.js'
 
 const COL = 'invitations'
+const LOCAL_PUBLISHED_KEY = 'oz-invitation:published'
 
 const emptyWedding = () => ({
   groom: '',
+  groomLastName: '',
+  groomFirstName: '',
+  groomRelation: '아들',
   groomFather: '',
   groomMother: '',
+  groomFatherDeceased: false,
+  groomMotherDeceased: false,
   bride: '',
+  brideLastName: '',
+  brideFirstName: '',
+  brideRelation: '딸',
   brideFather: '',
   brideMother: '',
+  brideFatherDeceased: false,
+  brideMotherDeceased: false,
+  deceasedFlowerMark: true,
+  brideFirst: false,
   date: '',
   time: '',
   venue: '',
   address: '',
+  coverImage: '',
+  greetingTitle: '소중한 분들을 초대합니다',
   greeting: '',
+  greetingImage: '',
+  endingImage: '',
+  endingMessage: '',
   contactGroom: '',
   contactBride: '',
 })
@@ -90,6 +108,9 @@ export async function updateInvitation(id, patch) {
 }
 
 export async function findPublishedBySlug(slug) {
+  if (!getCanUseFirebase()) {
+    return (await findBlobPublishedBySlug(slug)) || findLocalPublishedBySlug(slug)
+  }
   const db = getDb()
   const q = query(
     collection(db, COL),
@@ -104,6 +125,11 @@ export async function findPublishedBySlug(slug) {
 }
 
 export async function publishInvitation(id, slug, draft = null) {
+  if (!getCanUseFirebase()) {
+    const published = await publishBlobInvitation(slug, draft)
+    return published || publishLocalInvitation(slug, draft)
+  }
+
   const patch = {
     slug,
     status: 'published',
@@ -118,6 +144,7 @@ export async function publishInvitation(id, slug, draft = null) {
     patch.buyerPhone = normalizePhone(draft.buyerPhone)
     patch.wedding = draft.wedding || emptyWedding()
     patch.gallery = Array.isArray(draft.gallery) ? draft.gallery : []
+    patch.themeOptions = draft.themeOptions || null
     patch.rsvpEnabled = !!draft.rsvpEnabled
   }
 
@@ -126,6 +153,65 @@ export async function publishInvitation(id, slug, draft = null) {
     patch,
     { merge: true },
   )
+}
+
+export function publishLocalInvitation(slug, draft = null) {
+  if (typeof window === 'undefined' || !slug || !draft) return null
+  const published = readLocalPublished()
+  const now = new Date().toISOString()
+  const record = {
+    ...draft,
+    id: draft.id || `local-${slug}`,
+    slug,
+    status: 'published',
+    step: 4,
+    publishedAt: now,
+    updatedAt: now,
+  }
+  published[slug] = record
+  window.localStorage.setItem(LOCAL_PUBLISHED_KEY, JSON.stringify(published))
+  return record
+}
+
+export function findLocalPublishedBySlug(slug) {
+  if (!slug) return null
+  return readLocalPublished()[slug] || null
+}
+
+async function publishBlobInvitation(slug, draft = null) {
+  if (!slug || !draft || typeof window === 'undefined') return null
+  try {
+    const res = await fetch('/api/invitations/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug, draft }),
+    })
+    const json = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(json?.error || 'Blob publish failed')
+    if (json?.invitation) {
+      publishLocalInvitation(slug, json.invitation)
+      return json.invitation
+    }
+  } catch (e) {
+    console.warn('[publishBlobInvitation] fallback to localStorage:', e?.message || e)
+  }
+  return null
+}
+
+async function findBlobPublishedBySlug(slug) {
+  if (!slug || typeof window === 'undefined') return null
+  try {
+    const res = await fetch(`/api/invitations/by-slug?slug=${encodeURIComponent(slug)}`, {
+      headers: { Accept: 'application/json' },
+    })
+    if (res.status === 404) return null
+    const json = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(json?.error || 'Blob lookup failed')
+    return json?.invitation || null
+  } catch (e) {
+    console.warn('[findBlobPublishedBySlug] fallback to localStorage:', e?.message || e)
+    return null
+  }
 }
 
 export async function findInvitationsByBuyer({ name, phoneNumber }) {
@@ -147,4 +233,24 @@ export async function findInvitationsByBuyer({ name, phoneNumber }) {
 
 function normalizePhone(value) {
   return String(value || '').replace(/\D+/g, '')
+}
+
+function readLocalPublished() {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = window.localStorage.getItem(LOCAL_PUBLISHED_KEY)
+    const parsed = raw ? JSON.parse(raw) : {}
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+function getCanUseFirebase() {
+  try {
+    getDb()
+    return true
+  } catch {
+    return false
+  }
 }

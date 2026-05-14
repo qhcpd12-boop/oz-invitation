@@ -1,6 +1,7 @@
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
 import { radii, shadows } from '../../theme/index.js'
 import { formatKoreanDate } from '../../lib/invitations/formatWeddingDate.js'
+import TemplateCoverImage from '../../components/TemplateCoverImage.jsx'
 
 /** 청첩장 예시 — 모던 미니멀(화이트·블랙 타이포). props 기반 */
 const DEFAULT_DATA = {
@@ -12,6 +13,11 @@ const DEFAULT_DATA = {
   address: '서울시 강남구 논현로 645',
   greeting:
     '두 사람이 서로의 존재를 알아본 그 순간부터\n오늘이 시작되었습니다.\n새로 시작하는 이 길에 함께해 주세요.',
+  coverImage: '',
+  greetingTitle: '소중한 분들을 초대합니다',
+  greetingImage: '',
+  endingImage: '',
+  endingMessage: '',
   gallery: [],
 }
 
@@ -128,6 +134,15 @@ export default function ExampleModernMinimal({ data }) {
               </Typography>
             </Stack>
 
+            <TemplateCoverImage
+              src={w.coverImage}
+              sx={{
+                mt: 4,
+                borderRadius: 0,
+                border: `1px solid ${LINE}`,
+              }}
+            />
+
             <Box sx={{ mt: 5, mb: 2 }}>
               <GridLine />
             </Box>
@@ -176,6 +191,7 @@ export default function ExampleModernMinimal({ data }) {
                 >
                   {w.greeting}
                 </Typography>
+                <TemplateCoverImage src={w.greetingImage} alt="인사말 사진" aspectRatio="4 / 3" sx={{ mt: 3, borderRadius: 0, border: `1px solid ${LINE}` }} />
               </Box>
 
               {/* 예식 안내 */}
@@ -256,6 +272,12 @@ export default function ExampleModernMinimal({ data }) {
               {/* 푸터 */}
               <Box>
                 <GridLine />
+                <TemplateCoverImage src={w.endingImage} alt="엔딩 사진" aspectRatio="4 / 3" sx={{ mt: 3, mb: 2.5, borderRadius: 0, border: `1px solid ${LINE}` }} />
+                {w.endingMessage && (
+                  <Typography sx={{ whiteSpace: 'pre-line', fontFamily: KR, color: INK, fontSize: 14.5, lineHeight: 2, mb: 2.5 }}>
+                    {w.endingMessage}
+                  </Typography>
+                )}
                 <Stack direction="row" justifyContent="space-between" sx={{ pt: 2 }}>
                   <Typography sx={{ fontFamily: SANS, fontSize: 11, fontWeight: 700, letterSpacing: '0.28em', color: INK }}>
                     {w.groom.toUpperCase()} &times; {w.bride.toUpperCase()}
@@ -273,7 +295,7 @@ export default function ExampleModernMinimal({ data }) {
           variant="caption"
           sx={{ display: 'block', textAlign: 'center', mt: 3, color: MUTED, fontFamily: SANS, letterSpacing: '0.28em', fontSize: 10 }}
         >
-          예시 템플릿 · 모던 미니멀 · 오즈청첩장
+          예시 디자인 · 모던 미니멀 · 오즈청첩장
         </Typography>
       </Box>
     </Box>

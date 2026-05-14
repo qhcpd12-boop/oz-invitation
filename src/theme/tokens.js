@@ -51,7 +51,9 @@ export const radii = {
 export const shadows = {
   card: '0px 4px 16px rgba(0, 0, 0, 0.06)',
   elevated: '0px 16px 64px rgba(0, 0, 0, 0.16)',
-  cta: '0px 8px 24px rgba(225, 29, 72, 0.32)',
+  // 핑크 컬러 그림자 → 중성 그림자로 변경 (강조 버튼에서도 깔끔하게)
+  cta: '0px 6px 18px rgba(0, 0, 0, 0.10)',
+  ctaHover: '0px 10px 24px rgba(0, 0, 0, 0.14)',
 }
 
 export const spacing = {
@@ -63,8 +65,8 @@ export const spacing = {
 }
 
 export const fontFamily = {
-  sans: '"Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-  serif: '"Noto Serif KR", "Times New Roman", serif',
+  sans: '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif',
+  serif: '"Cormorant Garamond", "Noto Serif KR", "Times New Roman", serif',
 }
 
 export const breakpoints = {

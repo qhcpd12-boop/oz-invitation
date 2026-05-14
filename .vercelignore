@@ -1,0 +1,12 @@
+.env
+.env*.local
+.DS_Store
+.omc
+.omx
+node_modules
+dist
+dist-ssr
+*.log
+public/.agents
+public/.omc
+public/ChatGPT Image*

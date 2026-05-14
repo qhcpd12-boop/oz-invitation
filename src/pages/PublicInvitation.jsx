@@ -8,27 +8,13 @@ import {
   Typography,
 } from "@mui/material";
 import PillButton from "../components/PillButton.jsx";
-import TemplateRenderer from "../components/TemplateRenderer.jsx";
 import { palette } from "../theme/index.js";
 import { isFirebaseConfigured } from "../lib/firebase.js";
-import { findPublishedBySlug } from "../lib/invitations/invitationsService.js";
-
-/**
- * 공개 청첩장 (셸 미적용 · 모바일 퍼스트).
- * Firebase 미설정 시 데모 데이터로 렌더링한다.
- */
-const DEMO = {
-  wedding: {
-    groom: "김민준",
-    bride: "이서연",
-    date: "2026-05-24",
-    time: "14:00",
-    venue: "더 그랜드 볼룸",
-    address: "서울시 강남구 테헤란로 123",
-    greeting:
-      "두 사람이 사랑으로 만나 한 가정을 이루게 되었습니다.\n부디 오셔서 자리를 빛내 주시기 바랍니다.",
-  },
-};
+import {
+  findLocalPublishedBySlug,
+  findPublishedBySlug,
+} from "../lib/invitations/invitationsService.js";
+import { PreviewGuideBody } from "./create/StepDetails.jsx";
 
 export default function PublicInvitation() {
   const { slug } = useParams();
@@ -41,7 +27,9 @@ export default function PublicInvitation() {
     let active = true;
     (async () => {
       if (!isFirebaseConfigured) {
-        setData(DEMO);
+        const localInvitation = findLocalPublishedBySlug(slug);
+        if (localInvitation) setData(localInvitation);
+        else setNotFound(true);
         setLoading(false);
         return;
       }
@@ -65,13 +53,14 @@ export default function PublicInvitation() {
   const publicUrl = typeof window !== "undefined" ? window.location.href : "";
   const renderData = useMemo(() => {
     if (!data) return {};
+    const gallery = Array.isArray(data.gallery) ? data.gallery : [];
     return {
       ...(data.wedding || {}),
-      gallery: Array.isArray(data.gallery) ? data.gallery : [],
+      coverImage: data.coverImage || data.wedding?.coverImage || gallery[0] || "",
+      gallery,
+      themeOptions: data.themeOptions || data.wedding?.themeOptions || null,
     };
   }, [data]);
-
-  const templateId = data?.templateId || "luxury-noir";
 
   if (loading) {
     return (
@@ -129,8 +118,30 @@ export default function PublicInvitation() {
   };
 
   return (
-    <Box sx={{ position: "relative", background: palette.bgDark }}>
-      <TemplateRenderer templateId={templateId} data={renderData} />
+    <Box
+      sx={{
+        position: "relative",
+        minHeight: "100vh",
+        background: "#ECECEC",
+        pb: 11,
+        py: { xs: 0, sm: 3 },
+      }}
+    >
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: 420,
+          mx: "auto",
+          minHeight: "100vh",
+          background: "#FBFAF8",
+          borderRadius: { xs: 0, sm: 2 },
+          overflow: "hidden",
+          boxShadow: { xs: "none", sm: "0 1px 0 rgba(0,0,0,0.02)" },
+          border: { xs: "none", sm: "1px solid rgba(0,0,0,0.06)" },
+        }}
+      >
+        <PreviewGuideBody data={renderData} />
+      </Box>
       <Box
         sx={{
           position: "fixed",

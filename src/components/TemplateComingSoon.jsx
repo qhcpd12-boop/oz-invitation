@@ -1,12 +1,12 @@
 import { Box, Card, Stack, Typography } from '@mui/material'
-import { radii, shadows } from '../theme/index.js'
+import { radii, shadows, fontFamily } from '../theme/index.js'
 
 /**
  * 자체 디자인 컴포넌트가 아직 없는 템플릿의 미리보기 placeholder.
  * 다른 템플릿의 디자인을 잘못 빌려 쓰지 않도록 명시적으로 "준비 중" 화면 표시.
  */
 export default function TemplateComingSoon({ template }) {
-  const name = template?.name || '템플릿'
+  const name = template?.name || '디자인'
   const style = template?.style || ''
 
   return (
@@ -41,7 +41,7 @@ export default function TemplateComingSoon({ template }) {
               <Typography sx={{ fontSize: 11, letterSpacing: '0.35em', color: '#8E8478', textTransform: 'uppercase' }}>
                 Coming Soon
               </Typography>
-              <Typography sx={{ fontFamily: "'Noto Serif KR', serif", fontSize: 22, fontWeight: 700, color: '#2D2926' }}>
+              <Typography sx={{ fontFamily: fontFamily.sans, fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', color: '#2D2926' }}>
                 {name}
               </Typography>
               {style && (
@@ -52,7 +52,7 @@ export default function TemplateComingSoon({ template }) {
             </Stack>
             <Box sx={{ height: 1, width: 80, background: '#D9CFC2', my: 1 }} />
             <Typography sx={{ color: '#5C534B', fontSize: 14, lineHeight: 1.9, maxWidth: 320 }}>
-              이 템플릿의 전용 디자인은 곧 공개됩니다.<br />
+              이 디자인은 곧 공개됩니다.<br />
               현재는 <strong>럭셔리 누아르</strong>와 <strong>로맨틱 로즈</strong>를 사용해 보실 수 있어요.
             </Typography>
           </Stack>

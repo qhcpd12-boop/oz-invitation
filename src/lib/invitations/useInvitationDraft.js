@@ -77,16 +77,47 @@ export function useInvitationDraft() {
 function emptyWedding() {
   return {
     groom: '',
+    groomLastName: '',
+    groomFirstName: '',
+    groomRelation: '아들',
     groomFather: '',
     groomMother: '',
+    groomFatherDeceased: false,
+    groomMotherDeceased: false,
     bride: '',
+    brideLastName: '',
+    brideFirstName: '',
+    brideRelation: '딸',
     brideFather: '',
     brideMother: '',
+    brideFatherDeceased: false,
+    brideMotherDeceased: false,
+    deceasedFlowerMark: true,
+    brideFirst: false,
     date: '',
     time: '',
+    showCalendar: true,
+    showCountdown: true,
+    countdownText: '(신랑), (신부)의 결혼식이 (D-Day)일 남았습니다.',
     venue: '',
     address: '',
+    coverImage: '',
+    greetingTitle: '소중한 분들을 초대합니다',
     greeting: '',
+    greetingImage: '',
+    endingImage: '',
+    endingVisualType: 'default',
+    endingEffect: 'wave',
+    endingPhotoRatio: 'fixed',
+    endingMessage: `장담하건대, 세상이 다 겨울이어도
+우리 사랑은 늘 봄처럼 따뜻하고
+간혹, 여름처럼 뜨거울 겁니다.
+이수동, 사랑가`,
+    endingTextBold: false,
+    endingTextItalic: false,
+    endingTextUnderline: false,
+    endingTextAlign: 'left',
+    endingTextAccent: false,
     contactGroom: '',
     contactBride: '',
   }
@@ -101,6 +132,7 @@ function createLocalDraft(templateId) {
     step: 1,
     wedding: emptyWedding(),
     gallery: [],
+    themeOptions: null,
     buyerName: '',
     buyerPhone: '',
   }
@@ -113,5 +145,6 @@ function mergeWithDraftShape(existing, templateFromUrl) {
     templateId: existing.templateId || templateFromUrl || null,
     wedding: { ...emptyWedding(), ...(existing.wedding || {}) },
     gallery: Array.isArray(existing.gallery) ? existing.gallery : [],
+    themeOptions: existing.themeOptions || null,
   }
 }

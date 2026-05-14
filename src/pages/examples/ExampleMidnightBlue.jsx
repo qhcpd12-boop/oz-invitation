@@ -1,6 +1,7 @@
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
 import { radii, shadows } from '../../theme/index.js'
 import { formatKoreanDate } from '../../lib/invitations/formatWeddingDate.js'
+import TemplateCoverImage from '../../components/TemplateCoverImage.jsx'
 
 /** 청첩장 예시 — 미드나잇 블루(딥블루·실버, 별·달 모티프). props 기반 */
 const DEFAULT_DATA = {
@@ -12,6 +13,11 @@ const DEFAULT_DATA = {
   address: '서울시 송파구 올림픽로 300',
   greeting:
     '같은 하늘 아래 만난 두 사람이\n별이 가득한 이 밤,\n새로운 이야기를 시작합니다.\n저희의 첫 챕터에 함께해 주세요.',
+  coverImage: '',
+  greetingTitle: '소중한 분들을 초대합니다',
+  greetingImage: '',
+  endingImage: '',
+  endingMessage: '',
   gallery: [],
 }
 
@@ -238,6 +244,15 @@ export default function ExampleMidnightBlue({ data }) {
               >
                 {englishDate}
               </Typography>
+              <TemplateCoverImage
+                src={w.coverImage}
+                sx={{
+                  mt: 3.5,
+                  borderRadius: `${radii.sm}px`,
+                  border: `1px solid ${SILVER_DEEP}55`,
+                  boxShadow: '0 18px 34px rgba(0,0,0,0.32)',
+                }}
+              />
             </Box>
           </Box>
 
@@ -260,6 +275,7 @@ export default function ExampleMidnightBlue({ data }) {
                 >
                   {w.greeting}
                 </Typography>
+                <TemplateCoverImage src={w.greetingImage} alt="인사말 사진" aspectRatio="4 / 3" sx={{ mt: 3, borderRadius: `${radii.sm}px`, border: `1px solid ${SILVER_DEEP}55` }} />
                 <Typography
                   sx={{
                     mt: 3,
@@ -360,7 +376,13 @@ export default function ExampleMidnightBlue({ data }) {
 
               {/* 푸터 */}
               <Box sx={{ textAlign: 'center', pt: 1 }}>
+                <TemplateCoverImage src={w.endingImage} alt="엔딩 사진" aspectRatio="4 / 3" sx={{ mb: 3, borderRadius: `${radii.sm}px`, border: `1px solid ${SILVER_DEEP}55` }} />
                 <SilverDivider width={120} />
+                {w.endingMessage && (
+                  <Typography sx={{ whiteSpace: 'pre-line', color: SILVER_BRIGHT, fontSize: 14, lineHeight: 1.9, mb: 2 }}>
+                    {w.endingMessage}
+                  </Typography>
+                )}
                 <Typography
                   sx={{
                     fontFamily: SERIF,
@@ -400,7 +422,7 @@ export default function ExampleMidnightBlue({ data }) {
             letterSpacing: '0.18em',
           }}
         >
-          예시 템플릿 · 미드나잇 블루 · 오즈청첩장
+          예시 디자인 · 미드나잇 블루 · 오즈청첩장
         </Typography>
       </Box>
     </Box>

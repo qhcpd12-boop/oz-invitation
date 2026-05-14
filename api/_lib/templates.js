@@ -9,9 +9,10 @@ export const TEMPLATES = {
   'garden-bloom': { name: '가든 블룸', amount: 19900, currency: 'krw' },
   'classic-letter': { name: '클래식 편지', amount: 19900, currency: 'krw' },
   'midnight-blue': { name: '미드나잇 블루', amount: 19900, currency: 'krw' },
+  'modern-natural': { name: '모던 내추럴', amount: 19900, currency: 'krw' },
+  'vintage-illust': { name: '빈티지 일러스트', amount: 19900, currency: 'krw' },
 }
 
 export function resolveTemplate(id) {
   return TEMPLATES[id] || null
 }
-

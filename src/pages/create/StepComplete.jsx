@@ -1,70 +1,88 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Box,
   Card,
   CardContent,
   Stack,
-  TextField,
   Typography,
 } from '@mui/material'
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
+import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
+import IosShareRoundedIcon from '@mui/icons-material/IosShareRounded'
+import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
 import { useNavigate } from 'react-router-dom'
 import PillButton from '../../components/PillButton.jsx'
 import { useDraft } from './draftContext.js'
-import { isFirebaseConfigured } from '../../lib/firebase.js'
 import { publishInvitation } from '../../lib/invitations/invitationsService.js'
 import { palette, radii } from '../../theme/index.js'
 
-const slugify = (s = '') =>
-  s
-    .toString()
-    .normalize('NFKD')
-    .replace(/[^\p{Letter}\p{Number}]+/gu, '-')
-    .replace(/^-+|-+$/g, '')
-    .toLowerCase()
-    .slice(0, 32)
+const PAID_DRAFT_SESSION_KEY = 'oz-invitation:last-paid-draft'
 
 export default function StepComplete() {
   const navigate = useNavigate()
   const { invitation, patch } = useDraft()
+  const autoPublished = useRef(false)
+  const sessionInvitation = useMemo(() => readPaidSessionDraft(), [])
+  const sourceInvitation =
+    invitation?.status === 'paid' || invitation?.status === 'published'
+      ? invitation
+      : sessionInvitation || invitation
   const defaultSlug = useMemo(() => {
-    if (!invitation) return ''
-    return makeShortSlug(invitation)
-  }, [invitation])
+    if (!sourceInvitation) return ''
+    return makeShortSlug(sourceInvitation)
+  }, [sourceInvitation])
 
-  const [slug, setSlug] = useState(invitation?.slug || defaultSlug)
+  const [slug, setSlug] = useState(sourceInvitation?.slug || defaultSlug)
+  const [publishedSlug, setPublishedSlug] = useState(sourceInvitation?.slug || '')
   const [publishing, setPublishing] = useState(false)
   const [error, setError] = useState('')
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    if (!invitation?.slug && defaultSlug) setSlug(defaultSlug)
-  }, [defaultSlug, invitation?.slug])
+    if (!sourceInvitation?.slug && defaultSlug) setSlug(defaultSlug)
+  }, [defaultSlug, sourceInvitation?.slug])
 
-  const publicUrl = `${window.location.origin}/i/${slug}`
+  const activeSlug = publishedSlug || slug
+  const publicUrl = `${window.location.origin}/i/${activeSlug}`
 
-  const onPublish = async () => {
+  const publishNow = useCallback(async () => {
     setError('')
-    if (!slug) return setError('주소를 입력해 주세요.')
+    const nextSlug = slug || defaultSlug
+    if (!nextSlug) {
+      setError('공유 링크를 만들 수 없습니다. 잠시 후 다시 시도해 주세요.')
+      return
+    }
     setPublishing(true)
     try {
-      if (isFirebaseConfigured) {
-        await publishInvitation(invitation.id, slug, invitation)
-        patch({ slug, status: 'published', step: 4 })
-      } else {
-        patch({ slug, status: 'published', step: 4 })
-      }
+      await publishInvitation(sourceInvitation.id, nextSlug, sourceInvitation)
+      patch({ slug: nextSlug, status: 'published', step: 4 })
+      setSlug(nextSlug)
+      setPublishedSlug(nextSlug)
     } catch (e) {
-      setError(e.message)
+      setError(e.message || '공유 링크 생성 중 오류가 발생했습니다.')
     } finally {
       setPublishing(false)
     }
-  }
+  }, [defaultSlug, patch, slug, sourceInvitation])
 
-  const isPublished = invitation?.status === 'published' || invitation?.slug === slug
+  useEffect(() => {
+    if (!sourceInvitation || autoPublished.current) return
+    if (sourceInvitation.status !== 'paid' && sourceInvitation.status !== 'published') return
+    autoPublished.current = true
+    if (sourceInvitation.slug) {
+      setSlug(sourceInvitation.slug)
+      setPublishedSlug(sourceInvitation.slug)
+      return
+    }
+    publishNow()
+  }, [publishNow, sourceInvitation])
 
   const onCopy = async () => {
     try {
       await navigator.clipboard.writeText(publicUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1400)
     } catch {}
   }
 
@@ -72,7 +90,7 @@ export default function StepComplete() {
     if (!navigator.share) return onCopy()
     try {
       await navigator.share({
-        title: `${invitation?.wedding?.groom || '신랑'} & ${invitation?.wedding?.bride || '신부'} 결혼식 초대장`,
+        title: `${sourceInvitation?.wedding?.groom || '신랑'} & ${sourceInvitation?.wedding?.bride || '신부'} 결혼식 초대장`,
         text: '모바일 청첩장을 공유합니다.',
         url: publicUrl,
       })
@@ -80,78 +98,126 @@ export default function StepComplete() {
   }
 
   return (
-    <Stack spacing={3}>
-      <Card>
-        <CardContent>
+    <Stack spacing={2.5} sx={{ maxWidth: 720, mx: 'auto' }}>
+      <Card sx={{ borderRadius: 4, overflow: 'hidden' }}>
+        <CardContent sx={{ p: { xs: 2.5, sm: 4 } }}>
           <Stack spacing={3} alignItems="center" textAlign="center">
-            <Typography variant="h2" sx={{ fontSize: 32 }}>
-              🎉 결제가 완료되었습니다
-            </Typography>
-            <Typography color="text.secondary">
-              아래에서 청첩장의 공개 주소를 결정하고 발행하세요.
-            </Typography>
-
-            <Box sx={{ width: '100%', maxWidth: 520 }}>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <TextField
-                  fullWidth
-                  value={slug}
-                  onChange={(e) => setSlug(slugify(e.target.value))}
-                  InputProps={{
-                    startAdornment: (
-                      <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                        /i/
-                      </Typography>
-                    ),
-                  }}
-                />
-                <PillButton onClick={onPublish} disabled={publishing || !slug}>
-                  {isPublished ? '재발행' : '발행'}
-                </PillButton>
-              </Stack>
+            <Box
+              sx={{
+                width: 58,
+                height: 58,
+                borderRadius: '50%',
+                display: 'grid',
+                placeItems: 'center',
+                color: '#fff',
+                background:
+                  'linear-gradient(135deg, rgba(251,113,133,1) 0%, rgba(219,39,119,1) 100%)',
+                boxShadow: '0 16px 32px rgba(225,29,72,0.22)',
+              }}
+            >
+              <CheckCircleRoundedIcon sx={{ fontSize: 34 }} />
             </Box>
+
+            <Stack spacing={1}>
+              <Typography sx={{ fontSize: { xs: 26, md: 32 }, fontWeight: 900, letterSpacing: '-0.04em' }}>
+                결제가 완료되었습니다
+              </Typography>
+              <Typography sx={{ color: palette.textMuted, fontSize: { xs: 14, md: 15 }, lineHeight: 1.7 }}>
+                모바일 청첩장 링크가 준비됐어요. 링크를 복사해서 카카오톡, 문자, SNS로
+                하객들에게 바로 공유할 수 있습니다.
+              </Typography>
+            </Stack>
 
             {error && <Alert severity="error">{error}</Alert>}
 
-            {isPublished && (
-              <Box
+            <Box
+              sx={{
+                width: '100%',
+                maxWidth: 560,
+                borderRadius: `${radii.lg}px`,
+                background: 'linear-gradient(180deg, #FFF6F8 0%, #FFFFFF 100%)',
+                border: '1px solid rgba(225,29,72,0.12)',
+                p: { xs: 2, sm: 2.5 },
+                textAlign: 'left',
+              }}
+            >
+              <Typography sx={{ fontSize: 12, fontWeight: 800, color: palette.primary, mb: 0.75 }}>
+                공유 링크
+              </Typography>
+              <Typography
                 sx={{
-                  background: palette.pinkSoft,
-                  borderRadius: `${radii.md}px`,
-                  p: 2.5,
-                  width: '100%',
-                  maxWidth: 520,
+                  fontFamily: 'monospace',
+                  fontSize: { xs: 14, sm: 15 },
+                  wordBreak: 'break-all',
+                  color: palette.textPrimary,
+                  lineHeight: 1.6,
                 }}
               >
-                <Typography variant="caption" color="text.secondary">
-                  공개 URL
-                </Typography>
-                <Typography sx={{ fontFamily: 'monospace', wordBreak: 'break-all', mt: 0.5 }}>
-                  {publicUrl}
-                </Typography>
-                <Stack direction="row" spacing={1} mt={1.5}>
-                  <PillButton size="small" variant="outline" onClick={onShare}>
-                    공유하기
-                  </PillButton>
-                  <PillButton size="small" onClick={onCopy}>
-                    링크 복사
-                  </PillButton>
-                  <PillButton
-                    size="small"
-                    variant="outline"
-                    onClick={() => window.open(publicUrl, '_blank')}
-                  >
-                    청첩장 열기
-                  </PillButton>
-                </Stack>
-              </Box>
-            )}
+                {publishing ? '공유 링크를 만드는 중입니다...' : publicUrl}
+              </Typography>
+            </Box>
 
-            <Stack direction="row" spacing={2} pt={2}>
-              <PillButton variant="outline" onClick={() => navigate('/create/details')}>
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={1.2}
+              sx={{ width: '100%', maxWidth: 560 }}
+            >
+              <PillButton
+                fullWidth
+                startIcon={<ContentCopyRoundedIcon />}
+                onClick={onCopy}
+                disabled={publishing || !activeSlug}
+              >
+                {copied ? '복사 완료' : '링크 복사'}
+              </PillButton>
+              <PillButton
+                fullWidth
+                variant="outline"
+                startIcon={<IosShareRoundedIcon />}
+                onClick={onShare}
+                disabled={publishing || !activeSlug}
+              >
+                공유하기
+              </PillButton>
+              <PillButton
+                fullWidth
+                variant="outline"
+                startIcon={<OpenInNewRoundedIcon />}
+                onClick={() => window.open(publicUrl, '_blank')}
+                disabled={publishing || !activeSlug}
+              >
+                열어보기
+              </PillButton>
+            </Stack>
+
+            <Typography sx={{ color: palette.textMuted, fontSize: 12.5, lineHeight: 1.65 }}>
+              이름, 일정, 장소, 사진을 수정해도 같은 공유 링크에 변경 내용이 반영됩니다.
+            </Typography>
+          </Stack>
+        </CardContent>
+      </Card>
+
+      <Card sx={{ borderRadius: 4 }}>
+        <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={1.2}
+            justifyContent="space-between"
+            alignItems={{ sm: 'center' }}
+          >
+            <Box>
+              <Typography sx={{ fontWeight: 800, color: palette.textPrimary }}>
+                청첩장 내용을 더 수정해야 하나요?
+              </Typography>
+              <Typography sx={{ mt: 0.5, color: palette.textMuted, fontSize: 13.5 }}>
+                수정 후 저장하면 같은 링크에 변경 내용이 반영됩니다.
+              </Typography>
+            </Box>
+            <Stack direction="row" spacing={1}>
+              <PillButton variant="outline" size="small" onClick={() => navigate('/create/details')}>
                 정보 수정
               </PillButton>
-              <PillButton variant="ghost" onClick={() => navigate('/')}>
+              <PillButton variant="ghost" size="small" onClick={() => navigate('/')}>
                 홈으로
               </PillButton>
             </Stack>
@@ -169,4 +235,15 @@ function makeShortSlug(invitation) {
     hash = (hash * 31 + source.charCodeAt(i)) >>> 0
   }
   return hash.toString(36).padStart(8, '0').slice(0, 8)
+}
+
+function readPaidSessionDraft() {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.sessionStorage.getItem(PAID_DRAFT_SESSION_KEY)
+    const parsed = raw ? JSON.parse(raw) : null
+    return parsed && typeof parsed === 'object' ? parsed : null
+  } catch {
+    return null
+  }
 }

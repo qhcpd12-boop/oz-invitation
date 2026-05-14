@@ -8,22 +8,33 @@ import { palette } from '../theme/index.js'
  */
 export default function WizardStepper({ steps, current = 0 }) {
   return (
-    <Stack direction="row" alignItems="center" spacing={1.5} sx={{ flexWrap: 'nowrap' }}>
+    <Stack
+      direction="row"
+      alignItems="center"
+      spacing={{ xs: 1.2, md: 2.1 }}
+      sx={{
+        flexWrap: 'nowrap',
+        width: { xs: '100%', sm: 'auto' },
+        justifyContent: 'center',
+      }}
+    >
       {steps.map((label, i) => {
         const done = i < current
         const active = i === current
         return (
-          <Stack key={label} direction="row" alignItems="center" spacing={1.5} sx={{ flex: 1 }}>
-            <Stack direction="row" spacing={1} alignItems="center">
+          <Stack key={label} direction="row" alignItems="center" spacing={{ xs: 0.85, md: 1 }} sx={{ flex: 1 }}>
+            <Stack direction="row" spacing={{ xs: 0.65, md: 0.8 }} alignItems="center">
               <Box
                 sx={{
-                  width: 36,
-                  height: 36,
+                  width: { xs: 26, md: 28 },
+                  height: { xs: 26, md: 28 },
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontWeight: 700,
+                  fontSize: { xs: 12.5, md: 13 },
+                  fontWeight: 800,
+                  lineHeight: 1,
                   color: done || active ? '#fff' : palette.textMuted,
                   background: done
                     ? palette.success
@@ -39,7 +50,9 @@ export default function WizardStepper({ steps, current = 0 }) {
                 variant="body2"
                 sx={{
                   color: active ? palette.primary : palette.textMuted,
-                  fontWeight: active ? 700 : 400,
+                  fontSize: { xs: 12, md: 12.5 },
+                  lineHeight: 1,
+                  fontWeight: active ? 800 : 500,
                   whiteSpace: 'nowrap',
                 }}
               >
@@ -47,7 +60,7 @@ export default function WizardStepper({ steps, current = 0 }) {
               </Typography>
             </Stack>
             {i < steps.length - 1 && (
-              <Box sx={{ flex: 1, height: 1, background: palette.border, mx: 1 }} />
+              <Box sx={{ width: { xs: 10, md: 28 }, height: 1, background: palette.border, mx: { xs: 0.15, md: 0.5 } }} />
             )}
           </Stack>
         )

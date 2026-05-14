@@ -33,7 +33,7 @@ export default function AppFooter() {
           alignItems={{ md: 'center' }}
           justifyContent="space-between"
         >
-          <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 20, color: '#fff' }}>
+          <Typography sx={{ fontFamily: fontFamily.sans, fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: '#fff' }}>
             오즈청첩장
           </Typography>
           <Stack direction="row" spacing={3} flexWrap="wrap">

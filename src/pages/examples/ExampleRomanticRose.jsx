@@ -1,6 +1,7 @@
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
 import { radii, shadows } from '../../theme/index.js'
 import { formatKoreanDate } from '../../lib/invitations/formatWeddingDate.js'
+import TemplateCoverImage from '../../components/TemplateCoverImage.jsx'
 
 /** 청첩장 예시 — 로맨틱 로즈(워터컬러 플로럴). props 기반 (빈 값이면 기본 데이터) */
 const DEFAULT_DATA = {
@@ -12,6 +13,11 @@ const DEFAULT_DATA = {
   address: '서울시 강남구 청담동 21-7',
   greeting:
     '서로의 마음이 닿아 사랑이 되었고,\n그 사랑이 두 사람을 한 곳으로 이끌었습니다.\n저희가 시작하는 새로운 봄에\n귀한 걸음으로 함께해 주세요.',
+  coverImage: '',
+  greetingTitle: '소중한 분들을 초대합니다',
+  greetingImage: '',
+  endingImage: '',
+  endingMessage: '',
   gallery: [],
 }
 
@@ -304,6 +310,14 @@ export default function ExampleRomanticRose({ data }) {
             </Typography>
 
             <CountdownChip targetDate={w.date} />
+            <TemplateCoverImage
+              src={w.coverImage}
+              sx={{
+                mt: 3,
+                border: `1px solid ${ROSE_GOLD}55`,
+                boxShadow: '0 16px 34px rgba(168,84,112,0.18)',
+              }}
+            />
           </Box>
 
           {/* 내용 섹션 */}
@@ -327,6 +341,7 @@ export default function ExampleRomanticRose({ data }) {
                 >
                   {w.greeting}
                 </Typography>
+                <TemplateCoverImage src={w.greetingImage} alt="인사말 사진" aspectRatio="4 / 3" sx={{ mt: 3, border: `1px solid ${ROSE_GOLD}44` }} />
                 <DotsDivider />
               </Box>
 
@@ -394,9 +409,15 @@ export default function ExampleRomanticRose({ data }) {
 
               {/* 푸터 */}
               <Box sx={{ textAlign: 'center', pt: 1 }}>
+                <TemplateCoverImage src={w.endingImage} alt="엔딩 사진" aspectRatio="4 / 3" sx={{ mb: 3, border: `1px solid ${ROSE_GOLD}44` }} />
                 <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1.5 }}>
                   <RoseSprig size={56} />
                 </Box>
+                {w.endingMessage && (
+                  <Typography sx={{ whiteSpace: 'pre-line', color: INK, fontSize: 14, lineHeight: 1.9, mb: 2 }}>
+                    {w.endingMessage}
+                  </Typography>
+                )}
                 <Typography sx={{ fontFamily: SCRIPT, fontSize: 28, color: ROSE }}>
                   with love
                 </Typography>
@@ -421,7 +442,7 @@ export default function ExampleRomanticRose({ data }) {
           variant="caption"
           sx={{ display: 'block', textAlign: 'center', mt: 3, color: MUTED, fontFamily: SERIF, fontStyle: 'italic' }}
         >
-          예시 템플릿 · 로맨틱 로즈 · 오즈청첩장
+          예시 디자인 · 로맨틱 로즈 · 오즈청첩장
         </Typography>
       </Box>
     </Box>

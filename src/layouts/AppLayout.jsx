@@ -7,6 +7,7 @@ import { palette } from '../theme/index.js'
 
 export default function AppLayout() {
   const location = useLocation()
+  const isLanding = location.pathname === '/'
 
   useEffect(() => {
     if (!location.hash) return
@@ -22,7 +23,18 @@ export default function AppLayout() {
   }, [location.hash])
 
   return (
-    <Box sx={{ background: palette.surface, minHeight: '100vh' }}>
+    <Box
+      sx={{
+        background: isLanding
+          ? `
+            radial-gradient(900px 360px at 12% 0%, rgba(255, 218, 224, 0.58) 0%, rgba(255, 218, 224, 0) 72%),
+            radial-gradient(820px 380px at 92% 18%, rgba(255, 226, 209, 0.42) 0%, rgba(255, 226, 209, 0) 74%),
+            linear-gradient(180deg, #FFF7F8 0%, #FDF7F3 420px, #FEFCF9 100%)
+          `
+          : palette.surface,
+        minHeight: '100vh',
+      }}
+    >
       <AppHeader />
       <Box component="main">
         <Outlet />

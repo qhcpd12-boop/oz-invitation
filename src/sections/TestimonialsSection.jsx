@@ -4,6 +4,7 @@ import Badge from '../components/Badge.jsx'
 import PillButton from '../components/PillButton.jsx'
 import SectionContainer from '../components/SectionContainer.jsx'
 import TestimonialCard from '../components/TestimonialCard.jsx'
+import Reveal from '../components/Reveal.jsx'
 
 const T = [
   {
@@ -30,24 +31,30 @@ export default function TestimonialsSection() {
   const navigate = useNavigate()
   return (
     <SectionContainer tone="light" id="testimonials">
-      <Stack spacing={2} alignItems="center" textAlign="center" mb={5}>
-        <Badge tone="rose">실제 후기</Badge>
-        <Typography variant="h2">신랑·신부님들의 후기</Typography>
-      </Stack>
+      <Reveal>
+        <Stack spacing={2} alignItems="center" textAlign="center" mb={5}>
+          <Badge tone="rose">실제 후기</Badge>
+          <Typography variant="h2">신랑·신부님들의 후기</Typography>
+        </Stack>
+      </Reveal>
 
       <Grid container spacing={3}>
-        {T.map((t) => (
+        {T.map((t, idx) => (
           <Grid key={t.name} item xs={12} md={4}>
-            <TestimonialCard {...t} />
+            <Reveal delay={idx * 120} y={24}>
+              <TestimonialCard {...t} />
+            </Reveal>
           </Grid>
         ))}
       </Grid>
 
-      <Stack alignItems="center" mt={5}>
-        <PillButton variant="outline" onClick={() => navigate('/reviews')}>
-          전체 후기 보기 →
-        </PillButton>
-      </Stack>
+      <Reveal delay={420}>
+        <Stack alignItems="center" mt={5}>
+          <PillButton variant="outline" onClick={() => navigate('/reviews')}>
+            전체 후기 보기 →
+          </PillButton>
+        </Stack>
+      </Reveal>
     </SectionContainer>
   )
 }

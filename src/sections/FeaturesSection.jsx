@@ -6,8 +6,8 @@ import SectionContainer from '../components/SectionContainer.jsx'
 const FEATURES = [
   {
     icon: '🎨',
-    title: '프리미엄 디자인 템플릿',
-    description: '럭셔리·가든·클래식 등 다양한 스타일의\n디자인 템플릿을 자유롭게 선택할 수 있어요.',
+    title: '프리미엄 디자인',
+    description: '럭셔리·가든·클래식 등 다양한 스타일의\n디자인을 자유롭게 선택할 수 있어요.',
     tone: 'rose',
   },
   {

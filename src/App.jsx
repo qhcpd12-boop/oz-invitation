@@ -29,14 +29,15 @@ export default function App() {
         <Route path="/reviews" element={<ReviewsPage />} />
         <Route path="/orders" element={<OrdersLookupPage />} />
         <Route path="/dev/_styleguide" element={<StyleGuide />} />
+      </Route>
 
-        <Route path="/create" element={<CreateLayout />}>
-          <Route index element={<Navigate to="design" replace />} />
-          <Route path="design" element={<StepDesign />} />
-          <Route path="details" element={<StepDetails />} />
-          <Route path="checkout" element={<StepCheckout />} />
-          <Route path="complete" element={<StepComplete />} />
-        </Route>
+      {/* 청첩장 만들기 흐름 — 자체 미니멀 헤더 사용, 메인 셸 미적용 */}
+      <Route path="/create" element={<CreateLayout />}>
+        <Route index element={<Navigate to="design" replace />} />
+        <Route path="design" element={<StepDesign />} />
+        <Route path="details" element={<StepDetails />} />
+        <Route path="checkout" element={<StepCheckout />} />
+        <Route path="complete" element={<StepComplete />} />
       </Route>
 
       {/* 셸 미적용 — 모바일 청첩장 공개 뷰 */}

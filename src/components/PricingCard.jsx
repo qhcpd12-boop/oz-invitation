@@ -64,7 +64,7 @@ export default function PricingCard({
           borderBottom: highlight ? 'none' : `1px solid ${palette.border}`,
         }}
       >
-        <Typography sx={{ fontFamily: fontFamily.serif, fontSize: 24, fontWeight: 700 }}>
+        <Typography sx={{ fontFamily: fontFamily.sans, fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em' }}>
           {name}
         </Typography>
         <Typography

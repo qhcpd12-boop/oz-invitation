@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom'
 import PillButton from '../../components/PillButton.jsx'
 import { useDraft } from './draftContext.js'
 import { publishInvitation } from '../../lib/invitations/invitationsService.js'
+import { readCurrentDraftFromSession } from '../../lib/invitations/useInvitationDraft.js'
 import { palette, radii } from '../../theme/index.js'
 
 const PAID_DRAFT_SESSION_KEY = 'oz-invitation:last-paid-draft'
@@ -23,25 +24,27 @@ export default function StepComplete() {
   const navigate = useNavigate()
   const { invitation, patch } = useDraft()
   const autoPublished = useRef(false)
-  const sessionInvitation = useMemo(() => readPaidSessionDraft(), [])
-  const sourceInvitation =
-    invitation?.status === 'paid' || invitation?.status === 'published'
-      ? invitation
-      : sessionInvitation || invitation
+  const paidSessionInvitation = useMemo(() => readPaidSessionDraft(), [])
+  const currentSessionInvitation = useMemo(() => readCurrentDraftFromSession(), [])
+  const sourceInvitation = pickFreshestDraft(
+    invitation,
+    paidSessionInvitation,
+    currentSessionInvitation,
+  )
   const defaultSlug = useMemo(() => {
     if (!sourceInvitation) return ''
-    return makeShortSlug(sourceInvitation)
+    return sourceInvitation.slug || makeShortSlug(sourceInvitation)
   }, [sourceInvitation])
 
   const [slug, setSlug] = useState(sourceInvitation?.slug || defaultSlug)
-  const [publishedSlug, setPublishedSlug] = useState(sourceInvitation?.slug || '')
+  const [publishedSlug, setPublishedSlug] = useState('')
   const [publishing, setPublishing] = useState(false)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    if (!sourceInvitation?.slug && defaultSlug) setSlug(defaultSlug)
-  }, [defaultSlug, sourceInvitation?.slug])
+    if (defaultSlug) setSlug(defaultSlug)
+  }, [defaultSlug])
 
   const activeSlug = publishedSlug || slug
   const publicUrl = `${window.location.origin}/i/${activeSlug}`
@@ -53,9 +56,19 @@ export default function StepComplete() {
       setError('공유 링크를 만들 수 없습니다. 잠시 후 다시 시도해 주세요.')
       return
     }
+    // 가장 최신 데이터를 sessionStorage에서 한 번 더 읽어 발행 직전에 갱신
+    const latestDraft = pickFreshestDraft(
+      sourceInvitation,
+      readCurrentDraftFromSession(),
+      readPaidSessionDraft(),
+    )
+    if (!latestDraft) {
+      setError('청첩장 데이터가 없습니다. 처음부터 다시 시도해 주세요.')
+      return
+    }
     setPublishing(true)
     try {
-      await publishInvitation(sourceInvitation.id, nextSlug, sourceInvitation)
+      await publishInvitation(latestDraft.id, nextSlug, latestDraft)
       patch({ slug: nextSlug, status: 'published', step: 4 })
       setSlug(nextSlug)
       setPublishedSlug(nextSlug)
@@ -70,11 +83,7 @@ export default function StepComplete() {
     if (!sourceInvitation || autoPublished.current) return
     if (sourceInvitation.status !== 'paid' && sourceInvitation.status !== 'published') return
     autoPublished.current = true
-    if (sourceInvitation.slug) {
-      setSlug(sourceInvitation.slug)
-      setPublishedSlug(sourceInvitation.slug)
-      return
-    }
+    // 기존 slug가 있어도 항상 최신 데이터로 다시 발행해 같은 링크에 덮어쓴다
     publishNow()
   }, [publishNow, sourceInvitation])
 
@@ -246,4 +255,30 @@ function readPaidSessionDraft() {
   } catch {
     return null
   }
+}
+
+const STATUS_RANK = { draft: 0, paid: 1, published: 2 }
+
+function pickFreshestDraft(...candidates) {
+  // 결제·발행 상태가 더 진행된 쪽 우선, 같다면 마지막 수정 시각이 더 늦은 쪽 우선
+  let best = null
+  for (const candidate of candidates) {
+    if (!candidate || typeof candidate !== 'object') continue
+    if (!best) {
+      best = candidate
+      continue
+    }
+    const a = STATUS_RANK[best.status] ?? -1
+    const b = STATUS_RANK[candidate.status] ?? -1
+    if (b > a) {
+      best = candidate
+      continue
+    }
+    if (b === a) {
+      const at = Date.parse(best.updatedAt || best.paidAt || best.publishedAt || '') || 0
+      const bt = Date.parse(candidate.updatedAt || candidate.paidAt || candidate.publishedAt || '') || 0
+      if (bt > at) best = candidate
+    }
+  }
+  return best
 }

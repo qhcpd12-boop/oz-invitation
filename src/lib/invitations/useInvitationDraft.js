@@ -3,11 +3,32 @@ import { useSearchParams } from 'react-router-dom'
 import { isFirebaseConfigured } from '../firebase.js'
 import { getInvitation } from './invitationsService.js'
 
+const CURRENT_DRAFT_SESSION_KEY = 'oz-invitation:current-draft'
+
+export function readCurrentDraftFromSession() {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.sessionStorage.getItem(CURRENT_DRAFT_SESSION_KEY)
+    const parsed = raw ? JSON.parse(raw) : null
+    return parsed && typeof parsed === 'object' ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+function writeCurrentDraftToSession(invitation) {
+  if (typeof window === 'undefined' || !invitation) return
+  try {
+    window.sessionStorage.setItem(CURRENT_DRAFT_SESSION_KEY, JSON.stringify(invitation))
+  } catch {
+    /* sessionStorage 사용 불가 환경은 무시 */
+  }
+}
+
 /**
- * 위저드 모든 단계가 공유하는 draft 상태 (Phase 1: 인증 폐지).
- *  - 인증 없음. 메모리 모드로만 동작.
- *  - 결제 시점(Phase 4)에서 phoneNumber+name과 함께 Firestore에 저장된다.
- *  - Phase 3에서 localStorage 폴백 추가 예정.
+ * 위저드 모든 단계가 공유하는 draft 상태.
+ *  - 인증 없음. sessionStorage로 새로고침/탭 이동 사이 draft를 보존.
+ *  - 결제 시점에 sessionStorage의 최신 draft를 그대로 사용.
  */
 export function useInvitationDraft() {
   const [params] = useSearchParams()
@@ -29,7 +50,9 @@ export function useInvitationDraft() {
         try {
           const existing = await getInvitation(invitationIdFromUrl)
           if (existing && !cancelled) {
-            setInvitation(mergeWithDraftShape(existing, templateFromUrl))
+            const merged = mergeWithDraftShape(existing, templateFromUrl)
+            setInvitation(merged)
+            writeCurrentDraftToSession(merged)
             setReady(true)
             return
           }
@@ -38,8 +61,19 @@ export function useInvitationDraft() {
         }
       }
 
+      const restored = readCurrentDraftFromSession()
+      if (restored && !cancelled) {
+        const merged = mergeWithDraftShape(restored, templateFromUrl || restored.templateId)
+        setInvitation(merged)
+        writeCurrentDraftToSession(merged)
+        setReady(true)
+        return
+      }
+
       if (!cancelled) {
-        setInvitation(createLocalDraft(templateFromUrl))
+        const fresh = createLocalDraft(templateFromUrl)
+        setInvitation(fresh)
+        writeCurrentDraftToSession(fresh)
         setReady(true)
       }
     }
@@ -52,19 +86,26 @@ export function useInvitationDraft() {
   }, [])
 
   const flush = useCallback(async () => {
-    // Phase 1: no-op. Phase 4 결제 시점에 Firestore 저장.
     pendingPatch.current = {}
   }, [])
 
   const patch = useCallback((delta) => {
-    setInvitation((prev) => (prev ? { ...prev, ...delta } : prev))
+    setInvitation((prev) => {
+      if (!prev) return prev
+      const next = { ...prev, ...delta }
+      writeCurrentDraftToSession(next)
+      return next
+    })
     pendingPatch.current = { ...pendingPatch.current, ...delta }
   }, [])
 
   const patchWedding = useCallback((delta) => {
-    setInvitation((prev) =>
-      prev ? { ...prev, wedding: { ...prev.wedding, ...delta } } : prev,
-    )
+    setInvitation((prev) => {
+      if (!prev) return prev
+      const next = { ...prev, wedding: { ...prev.wedding, ...delta } }
+      writeCurrentDraftToSession(next)
+      return next
+    })
     pendingPatch.current = {
       ...pendingPatch.current,
       wedding: { ...(pendingPatch.current.wedding || {}), ...delta },

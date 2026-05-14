@@ -14,6 +14,7 @@ import CreditCardRoundedIcon from '@mui/icons-material/CreditCardRounded'
 import PillButton from '../../components/PillButton.jsx'
 import { useDraft } from './draftContext.js'
 import { getTemplateById, UNIFORM_PRICE } from '../../lib/invitations/templates.js'
+import { readCurrentDraftFromSession } from '../../lib/invitations/useInvitationDraft.js'
 import { palette } from '../../theme/index.js'
 
 const PAID_DRAFT_SESSION_KEY = 'oz-invitation:last-paid-draft'
@@ -85,9 +86,13 @@ export default function StepCheckout() {
       }
 
       await new Promise((r) => setTimeout(r, 450))
+      const sessionDraft = readCurrentDraftFromSession()
+      const baseDraft = sessionDraft || invitation || {}
       const paidDraft = {
-        ...invitation,
+        ...baseDraft,
         ...paymentPatch,
+        wedding: { ...(baseDraft.wedding || {}), ...((paymentPatch || {}).wedding || {}) },
+        themeOptions: (paymentPatch && paymentPatch.themeOptions) || baseDraft.themeOptions || null,
         status: 'paid',
         step: 3,
         paidAt: new Date().toISOString(),
